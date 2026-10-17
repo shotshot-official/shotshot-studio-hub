@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #0a0a0c;
+  --color-surface: #121215;
+  --color-surface-card: #18181b;
+  --color-surface-hover: #222226;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-active: rgba(255, 255, 255, 0.22);
+
+  --color-status-available: #10b981;
+  --color-status-inproject: #0ea5e9;
+  --color-status-busy: #f59e0b;
+  --color-status-away: #737373;
+
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: #ededed;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Swiss 1px Border Precision Card */
+.swiss-border {
+  border: 1px solid var(--color-border);
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.swiss-border:hover {
+  border-color: var(--color-border-active);
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.6);
+}
+
+/* WCAG 2.2 SC 2.4.7 High-Contrast Visible Focus Ring */
+.swiss-focus {
+  outline: none;
+}
+.swiss-focus:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}

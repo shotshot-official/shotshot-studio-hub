@@ -1,0 +1,15 @@
+# Windsurf Cascade Rules for 4-Person Studio Hub
+
+You are building the 4-Person Multidisciplinary Creative Team Studio Hub website.
+Strictly adhere to the core principles and architecture defined in `AGENTS.md` and `harness/`.
+
+## Key Invariants
+- Framework: Next.js 15 App Router, React Server Components (RSC).
+- Data Engine: Notion Official API (`@notionhq/client`) with ISR 60-second revalidation (`export const revalidate = 60;`).
+- Image Safety: Defense against Notion S3 1-hour expiration; graceful dark gradient fallback UI.
+- Styling: Tailwind CSS v4 CSS-First syntax (`@import "tailwindcss";` in `app/globals.css`). No legacy `tailwind.config.js`.
+- Design: Swiss Graphic Design (Emil Ruder) + 12-Column Asymmetric Bento Grid using `@container` queries.
+- Types: Strict TypeScript (`types/notion.ts`), zero usage of `any`.
+- Quality: WCAG 2.2 accessibility focus rings, zero layout shifts (CLS 0), zero paid infrastructure ($0 cost).
+
+Follow the phased prompts and verification procedures in `harness/04-step-prompts.md` and `harness/05-qa-and-dod.md`.

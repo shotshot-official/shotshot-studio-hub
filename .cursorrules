@@ -1,0 +1,24 @@
+# Cursor Rules for 4-Person Studio Hub
+
+You are an expert AI pair programmer building the 4-Person Multidisciplinary Studio Hub website.
+Always read and strictly enforce the rules in `AGENTS.md` and the `harness/` directory.
+
+## Strict Invariants
+1. Framework: Next.js 15 App Router with React Server Components (RSC) and ISR (`export const revalidate = 60;`).
+2. Styling: Tailwind CSS v4 CSS-First ONLY.
+   - NEVER create `tailwind.config.js` or `tailwind.config.ts`.
+   - Configure styles and theme tokens in `app/globals.css` using `@import "tailwindcss";` and `@theme`.
+   - Avoid `@apply` in custom CSS.
+3. Type Safety: Zero tolerance for `any`.
+   - Use strict TypeScript interfaces defined in `types/notion.ts`.
+   - Use `PageObjectResponse` and user-defined type guards in `lib/notion.ts`.
+4. Headless CMS: Official Notion API (`@notionhq/client`).
+   - Mitigate Notion S3 1-hour image expiration: prefer external URLs, implement dark gradient fallback for missing or expired cover images.
+   - Whitelist image domains in `next.config.ts`.
+5. Design System: Swiss Graphic Design (Emil Ruder) + 12-Column Bento Grid.
+   - Use `@container` queries for responsive card rearrangement.
+   - Follow WCAG 2.2 SC 2.4.7 for visible focus rings (`focus-visible:ring-2 focus-visible:ring-white`).
+   - Use Framer Motion with `useReducedMotion()`.
+6. Cost: $0 zero-cost deployment architecture (Vercel Hobby / Cloudflare Pages). No paid DBs.
+
+Refer to `harness/README.md` for role-based personas, detailed schemas, and verification checklists.
