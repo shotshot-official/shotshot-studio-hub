@@ -69,18 +69,16 @@ shotshot/
 │   ├── ProfileDrawer.tsx          # 마이페이지 프로필 편집 서랍
 │   ├── ProjectDrawer.tsx          # 사이드 프로젝트 / 브랜드 신규 등록 서랍 (Notion Products DB 연동)
 │   ├── SkillMatrix.tsx            # 압축형 스킬 칩(Pill) 매트릭스
-│   ├── StatusBadge.tsx            # 상태(Status) 인디케이터 (색상 코드화)
-│   └── StudioChatWidget.tsx       # 플로팅 실시간 스튜디오 피드/채팅 위젯 (Notion DB 연동)
+│   └── StatusBadge.tsx            # 상태(Status) 인디케이터 (색상 코드화)
 ├── app/actions/
 │   ├── auth.ts                    # 경량 Web Crypto 세션 Server Actions
-│   ├── chat.ts                    # 실시간 스튜디오 피드 Server Actions
 │   └── product.ts                 # 사이드 프로젝트 신규 등록 Server Actions
 ├── lib/
 │   ├── auth.ts                    # Web Crypto HMAC-SHA256 세션 쿠키 엔진
 │   ├── mock-data.ts               # 격리된 Mock 데이터 및 인메모리 스토어 (쉽게 삭제/치환 가능)
 │   └── notion.ts                  # Notion SDK 클라이언트 & Type-safe fetchers
 ├── types/
-│   └── notion.ts                  # TypeScript 인터페이스 명세서 (Team, Product, Chat)
+│   └── notion.ts                  # TypeScript 인터페이스 명세서 (Team, Product)
 ├── .env.local                     # 환경 변수 (토큰, DB ID)
 ├── next.config.ts                 # 이미지 도메인 화이트리스트 및 최적화 설정
 ├── package.json
@@ -108,14 +106,6 @@ shotshot/
 - **LiveURL** (`URL`): 배포된 실서비스 URL
 - **InternalLinks** (`URL`): 내부 문서 또는 깃허브 리포지토리 URL
 - **CoverImage** (`Files & media`): 대표 이미지 (External URL 권장)
-
-### 4.3 Messages DB (`NOTION_MESSAGES_DB_ID`)
-- **Content** (`Title`): 채팅 메시지 본문
-- **SenderName** (`Rich Text`): 발신자 이름
-- **SenderRole** (`Rich Text` 또는 `Select`): 발신자 직무 / 역할
-- **SenderAvatar** (`URL`): 발신자 프로필 이미지 URL
-- **SenderEmail** (`Email` 또는 `Rich Text`): 발신자 식별 이메일
-- **CreatedAt** (`Date` 또는 `Created time`): 메시지 전송 시각
 
 ---
 

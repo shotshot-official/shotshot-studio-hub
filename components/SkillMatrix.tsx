@@ -10,7 +10,7 @@ export default function SkillMatrix({ skills }: SkillMatrixProps) {
       {skills.map((skill) => (
         <span
           key={skill}
-          className="text-[11px] font-mono px-2 py-0.5 rounded bg-neutral-800/60 text-neutral-300 border border-neutral-700/40"
+          className="text-[11px] font-mono tracking-tight uppercase px-2 py-0.5 bg-neutral-950/90 text-neutral-300 border border-neutral-800 transition-colors hover:border-neutral-600 hover:text-white"
         >
           {skill}
         </span>
@@ -18,3 +18,4 @@ export default function SkillMatrix({ skills }: SkillMatrixProps) {
     </div>
   );
 }
+

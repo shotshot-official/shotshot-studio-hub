@@ -8,31 +8,35 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
       case 'Available':
       case 'Active':
         return {
-          dot: 'bg-emerald-400',
+          indicator: 'bg-[var(--color-status-available)]',
           text: 'text-emerald-300',
-          bg: 'bg-emerald-950/40 border-emerald-800/40',
+          border: 'border-emerald-700/60 bg-neutral-950/90',
+          code: 'ACTIVE',
         };
       case 'In Project':
       case 'In Development':
         return {
-          dot: 'bg-sky-400',
+          indicator: 'bg-[var(--color-status-inproject)]',
           text: 'text-sky-300',
-          bg: 'bg-sky-950/40 border-sky-800/40',
+          border: 'border-sky-700/60 bg-neutral-950/90',
+          code: status === 'In Development' ? 'IN DEV' : 'IN PROJECT',
         };
       case 'Busy':
         return {
-          dot: 'bg-amber-400',
+          indicator: 'bg-[var(--color-status-busy)]',
           text: 'text-amber-300',
-          bg: 'bg-amber-950/40 border-amber-800/40',
+          border: 'border-amber-700/60 bg-neutral-950/90',
+          code: 'BUSY',
         };
       case 'Away':
       case 'Archived':
       case 'Concept':
       default:
         return {
-          dot: 'bg-neutral-400',
-          text: 'text-neutral-400',
-          bg: 'bg-neutral-900 border-neutral-800',
+          indicator: 'bg-[var(--color-status-away)]',
+          text: 'text-neutral-300',
+          border: 'border-neutral-700 bg-neutral-950/90',
+          code: status ? status.toUpperCase() : 'CONCEPT',
         };
     }
   };
@@ -41,10 +45,11 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono border ${style.bg} ${style.text}`}
+      className={`inline-flex items-center gap-2 px-2.5 py-1 text-[11px] font-mono tracking-wider uppercase border ${style.border} ${style.text}`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-      {status}
+      <span className={`w-1.5 h-1.5 shrink-0 ${style.indicator}`} />
+      <span>{style.code}</span>
     </span>
   );
 }
+

@@ -13,19 +13,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'SHOTSHOT STUDIO HUB — 4-Person Multidisciplinary Creative Team',
-  description: 'Internal hub and multi-brand side project matrix for the SHOTSHOT 4-person creative team powered by Next.js 15 and Notion API.',
+  title: 'SHOTSHOT Studio Hub — Creative Studio',
+  description: 'Team directory and project index for SHOTSHOT, an independent creative studio working across visual media, software, and storytelling.',
   openGraph: {
-    title: 'SHOTSHOT STUDIO HUB',
-    description: '4-Person Creative Team Core Capabilities & Multi-Brand Portfolio Matrix.',
+    title: 'SHOTSHOT Studio Hub',
+    description: 'An independent creative studio working across visual media, software, and storytelling.',
     type: 'website',
     locale: 'en_US',
     siteName: 'SHOTSHOT Studio Hub',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SHOTSHOT STUDIO HUB',
-    description: '4-Person Creative Team Core Capabilities & Multi-Brand Portfolio Matrix.',
+    title: 'SHOTSHOT Studio Hub',
+    description: 'An independent creative studio working across visual media, software, and storytelling.',
   },
 };
 

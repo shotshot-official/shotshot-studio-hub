@@ -1,7 +1,7 @@
 // lib/notion.ts
 import { Client } from '@notionhq/client';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import { TeamMember, ProductItem, MemberStatus, ProductStatus, ChatMessage } from '@/types/notion';
+import { TeamMember, ProductItem, MemberStatus, ProductStatus } from '@/types/notion';
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
@@ -9,7 +9,6 @@ const notion = new Client({
 
 const TEAM_DB_ID = process.env.NOTION_TEAM_DB_ID || '';
 const PRODUCTS_DB_ID = process.env.NOTION_PRODUCTS_DB_ID || '';
-const MESSAGES_DB_ID = process.env.NOTION_MESSAGES_DB_ID || '';
 
 function isFullPage(response: unknown): response is PageObjectResponse {
   return typeof response === 'object' && response !== null && 'properties' in response;
@@ -32,6 +31,25 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
       const role = props.Role?.type === 'select' ? props.Role.select?.name : undefined;
       const skills = props.Skills?.type === 'multi_select' ? props.Skills.multi_select.map((s) => s.name) : [];
       const status = props.Status?.type === 'status' ? props.Status.status?.name : undefined;
+
+      // Extract Email (support Email/Gmail property as email or rich_text, or parse from personalLinks)
+      let email: string | undefined = undefined;
+      const emailProp = props.Email || props.Gmail || props.email;
+      if (emailProp?.type === 'email' && emailProp.email) {
+        email = emailProp.email.trim().toLowerCase();
+      } else if (emailProp?.type === 'rich_text') {
+        email = emailProp.rich_text[0]?.plain_text?.trim().toLowerCase();
+      }
+
+      // Extract Password (support Password property as rich_text, number, or title)
+      let password: string | undefined = undefined;
+      const passProp = props.Password || props.password || props.PW;
+      if (passProp?.type === 'rich_text' && passProp.rich_text.length > 0) {
+        password = passProp.rich_text[0]?.plain_text?.trim();
+      } else if (passProp?.type === 'number' && passProp.number !== null && passProp.number !== undefined) {
+        password = String(passProp.number);
+      }
+
       // Extract Avatar URL (Files & media or URL)
       let avatarUrl: string | undefined = undefined;
       const avatarProp = props.Avatar || props.ProfileImage || props.Photo;
@@ -56,6 +74,10 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
         if (matchedUrls) {
           personalLinks.push(...matchedUrls);
         }
+        if (!email) {
+          const matchedEmail = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+          if (matchedEmail) email = matchedEmail[0].toLowerCase();
+        }
       }
 
       return {
@@ -64,6 +86,8 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
         role: role || 'Contributor',
         skills,
         avatarUrl,
+        email,
+        password,
         status: (status as MemberStatus) || 'Away',
         personalLink: personalLinks[0] || undefined,
         personalLinks,
@@ -202,6 +226,7 @@ export async function updateTeamMemberInNotion(
     skills?: string[];
     avatarUrl?: string;
     personalLinks?: string[];
+    password?: string;
   }
 ): Promise<boolean> {
   if (!process.env.NOTION_TOKEN) return false;
@@ -225,15 +250,8 @@ export async function updateTeamMemberInNotion(
       };
     }
     if (data.avatarUrl) {
-      properties.Avatar = {
-        files: [
-          {
-            name: 'avatar',
-            type: 'external',
-            external: { url: data.avatarUrl },
-          },
-        ],
-      };
+      // In Notion Team DB, Avatar is configured as URL type
+      properties.Avatar = { url: data.avatarUrl };
     }
     if (data.personalLinks) {
       properties.PersonalLinks = {
@@ -244,12 +262,42 @@ export async function updateTeamMemberInNotion(
         ],
       };
     }
+    if (data.password) {
+      properties.Password = {
+        rich_text: [
+          {
+            text: { content: data.password },
+          },
+        ],
+      };
+    }
 
-    await notion.pages.update({
-      page_id: pageId,
-      properties: properties as Parameters<typeof notion.pages.update>[0]['properties'],
-    });
-    return true;
+    try {
+      await notion.pages.update({
+        page_id: pageId,
+        properties: properties as Parameters<typeof notion.pages.update>[0]['properties'],
+      });
+      return true;
+    } catch (updateErr) {
+      // Fallback: If Avatar happens to be 'files' type in some workspace schemas
+      if (data.avatarUrl) {
+        properties.Avatar = {
+          files: [
+            {
+              name: 'avatar',
+              type: 'external',
+              external: { url: data.avatarUrl },
+            },
+          ],
+        };
+        await notion.pages.update({
+          page_id: pageId,
+          properties: properties as Parameters<typeof notion.pages.update>[0]['properties'],
+        });
+        return true;
+      }
+      throw updateErr;
+    }
   } catch (error) {
     console.error('Failed to update Notion team member:', error);
     return false;
@@ -279,15 +327,8 @@ export async function createTeamMemberInNotion(data: {
     };
 
     if (data.avatarUrl) {
-      properties.Avatar = {
-        files: [
-          {
-            name: 'avatar',
-            type: 'external',
-            external: { url: data.avatarUrl },
-          },
-        ],
-      };
+      // Notion Team DB uses URL type for Avatar
+      properties.Avatar = { url: data.avatarUrl };
     }
 
     if (data.personalLinks && data.personalLinks.length > 0) {
@@ -309,102 +350,6 @@ export async function createTeamMemberInNotion(data: {
   } catch (error) {
     console.error('Failed to create Team Member in Notion:', error);
     return null;
-  }
-}
-
-export async function getChatMessages(): Promise<ChatMessage[]> {
-  if (!MESSAGES_DB_ID || !process.env.NOTION_TOKEN) {
-    return [];
-  }
-
-  try {
-    const response = await notion.databases.query({
-      database_id: MESSAGES_DB_ID,
-      sorts: [
-        {
-          timestamp: 'created_time',
-          direction: 'ascending',
-        },
-      ],
-    });
-
-    return response.results.filter(isFullPage).map((page) => {
-      const props = page.properties;
-      const content =
-        props.Message?.type === 'title'
-          ? props.Message.title[0]?.plain_text
-          : props.Message?.type === 'rich_text'
-          ? props.Message.rich_text[0]?.plain_text
-          : '';
-      const senderName =
-        props.SenderName?.type === 'rich_text'
-          ? props.SenderName.rich_text[0]?.plain_text
-          : props.SenderName?.type === 'title'
-          ? props.SenderName.title[0]?.plain_text
-          : 'Anonymous';
-      const senderRole =
-        props.SenderRole?.type === 'select'
-          ? props.SenderRole.select?.name
-          : props.SenderRole?.type === 'rich_text'
-          ? props.SenderRole.rich_text[0]?.plain_text
-          : 'Member';
-
-      let senderAvatar: string | undefined = undefined;
-      if (props.SenderAvatar?.type === 'url' && props.SenderAvatar.url) {
-        senderAvatar = props.SenderAvatar.url;
-      }
-
-      return {
-        id: page.id,
-        senderId: page.id,
-        senderName: senderName || 'Anonymous',
-        senderRole: senderRole || 'Member',
-        senderAvatar,
-        content: content || '',
-        createdAt: (page as { created_time?: string }).created_time || new Date().toISOString(),
-      };
-    });
-  } catch (error) {
-    console.error('Failed to fetch Chat Messages from Notion:', error);
-    return [];
-  }
-}
-
-export async function sendChatMessageInNotion(msg: {
-  senderName: string;
-  senderRole: string;
-  senderAvatar?: string;
-  content: string;
-}): Promise<boolean> {
-  if (!MESSAGES_DB_ID || !process.env.NOTION_TOKEN) return false;
-
-  try {
-    const properties: Record<string, unknown> = {
-      Message: {
-        title: [{ text: { content: msg.content } }],
-      },
-      SenderName: {
-        rich_text: [{ text: { content: msg.senderName } }],
-      },
-      SenderRole: {
-        select: { name: msg.senderRole },
-      },
-    };
-
-    if (msg.senderAvatar) {
-      properties.SenderAvatar = {
-        url: msg.senderAvatar,
-      };
-    }
-
-    await notion.pages.create({
-      parent: { database_id: MESSAGES_DB_ID },
-      properties: properties as Parameters<typeof notion.pages.create>[0]['properties'],
-    });
-    return true;
-  } catch (error) {
-    console.error('Failed to send message to Notion:', error);
-    return false;
   }
 }
 

@@ -2,7 +2,7 @@
 import { cookies } from 'next/headers';
 import { TeamMember } from '@/types/notion';
 
-const COOKIE_NAME = 'studio_hub_session';
+const COOKIE_NAME = 'studio_session';
 const SECRET_KEY = process.env.AUTH_SECRET || 'studio-hub-4person-team-auth-secret-key-2026';
 
 export interface AuthSession {
@@ -88,4 +88,44 @@ export async function getSession(): Promise<AuthSession | null> {
 export async function clearSession(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
+}
+
+/**
+ * Hashes a password using SHA-256 via Web Crypto API.
+ */
+export async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password.trim());
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Smart password verification supporting:
+ * 1. Plain text comparison (for rapid admin onboarding / manual reset in Notion)
+ * 2. SHA-256 cryptographic hash comparison
+ * 3. Fallback to default '1234' if Notion password column is empty
+ */
+export async function verifyPassword(inputPassword: string, storedValue?: string): Promise<boolean> {
+  const trimmedInput = inputPassword.trim();
+  const trimmedStored = storedValue?.trim();
+
+  // If no password set in Notion yet, allow default '1234'
+  if (!trimmedStored) {
+    return trimmedInput === '1234';
+  }
+
+  // 1. Direct plain text match (e.g. initial setup in Notion DB)
+  if (trimmedInput === trimmedStored) {
+    return true;
+  }
+
+  // 2. SHA-256 hash match (64 hex characters)
+  const hashedInput = await hashPassword(trimmedInput);
+  if (hashedInput.toLowerCase() === trimmedStored.toLowerCase()) {
+    return true;
+  }
+
+  return false;
 }

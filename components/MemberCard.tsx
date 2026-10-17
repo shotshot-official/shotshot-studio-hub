@@ -30,23 +30,23 @@ export default function MemberCard({ member }: MemberCardProps) {
   const hasAvatar = member.avatarUrl && !avatarError;
 
   return (
-    <article className="swiss-border bg-neutral-900/60 rounded-xl p-5 flex flex-col justify-between h-full backdrop-blur-sm">
+    <article className="swiss-border p-6 flex flex-col justify-between h-full group relative">
       <div>
-        {/* Top Header: Profile Avatar & Multi-Social Links Row */}
-        <div className="flex items-center justify-between gap-3 mb-4">
-          {/* Profile Picture with Initials Fallback */}
-          <div className="relative w-12 h-12 rounded-full overflow-hidden bg-neutral-800 border border-neutral-700/60 shrink-0 shadow-inner flex items-center justify-center">
+        {/* Top Header: Architectural Square Avatar & Multi-Social Links Row */}
+        <div className="flex items-start justify-between gap-3 mb-6">
+          {/* Profile Picture with Monogram Fallback */}
+          <div className="relative w-14 h-14 bg-neutral-950 border border-neutral-800 group-hover:border-neutral-600 transition-colors shrink-0 flex items-center justify-center overflow-hidden">
             {hasAvatar ? (
               <Image
                 src={member.avatarUrl!}
                 alt={member.name}
                 fill
-                className="object-cover"
-                sizes="48px"
+                className="object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-300"
+                sizes="56px"
                 onError={() => setAvatarError(true)}
               />
             ) : (
-              <span className="text-xs font-mono font-bold text-neutral-300 select-none">
+              <span className="text-sm font-mono font-bold tracking-wider text-neutral-200 select-none">
                 {getInitials(member.name)}
               </span>
             )}
@@ -63,9 +63,9 @@ export default function MemberCard({ member }: MemberCardProps) {
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    title={`${member.name} ${label}`}
+                    title={`${member.name} — ${label}`}
                     aria-label={`${member.name} ${label}`}
-                    className="swiss-focus text-neutral-400 hover:text-white p-1.5 rounded-md hover:bg-neutral-800/60 transition-colors"
+                    className="swiss-focus text-neutral-400 hover:text-white p-1.5 border border-transparent hover:border-neutral-700 hover:bg-neutral-950 transition-colors"
                   >
                     <Icon className="w-4 h-4" />
                   </a>
@@ -75,15 +75,20 @@ export default function MemberCard({ member }: MemberCardProps) {
           )}
         </div>
 
-        {/* Member Name & Role */}
-        <h3 className="text-xl font-bold text-white tracking-tight">{member.name}</h3>
-        <p className="text-sm text-neutral-400 mt-0.5 font-medium">{member.role}</p>
+        {/* Discipline Role & Member Name (Swiss Weight Contrast) */}
+        <p className="text-[11px] font-mono uppercase tracking-widest text-neutral-400 mb-1">
+          {member.role}
+        </p>
+        <h3 className="text-2xl font-bold text-white tracking-tight leading-snug">
+          {member.name}
+        </h3>
       </div>
 
-      {/* Skills Matrix */}
-      <div className="mt-4 pt-3 border-t border-neutral-800/60">
+      {/* Skills Specification Matrix */}
+      <div className="mt-6 pt-4 border-t border-neutral-800/80">
         <SkillMatrix skills={member.skills} />
       </div>
     </article>
   );
 }
+

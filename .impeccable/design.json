@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-17T13:29:00+09:00",
+  "title": "Design System: SHOTSHOT Studio Hub",
+  "extensions": {
+    "colorMeta": {
+      "stark-chalk": {
+        "role": "primary",
+        "displayName": "Stark Chalk",
+        "canonical": "oklch(100% 0 0)",
+        "tonalRamp": [
+          "#171717",
+          "#262626",
+          "#404040",
+          "#737373",
+          "#a3a3a3",
+          "#d4d4d8",
+          "#f5f5f5",
+          "#ffffff"
+        ]
+      },
+      "architectural-obsidian": {
+        "role": "neutral",
+        "displayName": "Architectural Obsidian",
+        "canonical": "oklch(13% 0.006 285)",
+        "tonalRamp": [
+          "#08080a",
+          "#101013",
+          "#141418",
+          "#1b1b21",
+          "#27272a",
+          "#52525b",
+          "#a1a1aa",
+          "#e4e4e7"
+        ]
+      },
+      "slate-subsurface": {
+        "role": "neutral",
+        "displayName": "Slate Subsurface",
+        "canonical": "oklch(17% 0.007 285)",
+        "tonalRamp": [
+          "#08080a",
+          "#101013",
+          "#18181c",
+          "#222228",
+          "#32323a",
+          "#52525b",
+          "#a1a1aa",
+          "#f4f4f5"
+        ]
+      },
+      "graphite-plate": {
+        "role": "neutral",
+        "displayName": "Graphite Plate",
+        "canonical": "oklch(19% 0.008 285)",
+        "tonalRamp": [
+          "#08080a",
+          "#141418",
+          "#1b1b21",
+          "#26262e",
+          "#3f3f46",
+          "#71717a",
+          "#d4d4d8",
+          "#fafafa"
+        ]
+      },
+      "graphite-hover": {
+        "role": "neutral",
+        "displayName": "Graphite Hover",
+        "canonical": "oklch(22.5% 0.01 285)",
+        "tonalRamp": [
+          "#08080a",
+          "#141418",
+          "#1b1b21",
+          "#272730",
+          "#3f3f46",
+          "#71717a",
+          "#d4d4d8",
+          "#ffffff"
+        ]
+      },
+      "chalk-secondary": {
+        "role": "neutral",
+        "displayName": "Chalk Secondary",
+        "canonical": "oklch(87% 0.006 286)",
+        "tonalRamp": [
+          "#18181b",
+          "#27272a",
+          "#3f3f46",
+          "#71717a",
+          "#a1a1aa",
+          "#d4d4d8",
+          "#e4e4e7",
+          "#fafafa"
+        ]
+      },
+      "ash-muted": {
+        "role": "neutral",
+        "displayName": "Ash Muted",
+        "canonical": "oklch(71.5% 0 0)",
+        "tonalRamp": [
+          "#171717",
+          "#262626",
+          "#404040",
+          "#525252",
+          "#737373",
+          "#a3a3a3",
+          "#d4d4d4",
+          "#f5f5f5"
+        ]
+      },
+      "signal-emerald": {
+        "role": "secondary",
+        "displayName": "Signal Emerald",
+        "canonical": "oklch(69.6% 0.17 162.48)",
+        "tonalRamp": [
+          "#022c22",
+          "#064e3b",
+          "#047857",
+          "#059669",
+          "#10b981",
+          "#34d399",
+          "#6ee7b7",
+          "#d1fae5"
+        ]
+      },
+      "telemetry-sky": {
+        "role": "tertiary",
+        "displayName": "Telemetry Sky",
+        "canonical": "oklch(74.6% 0.16 232.66)",
+        "tonalRamp": [
+          "#082f49",
+          "#0c4a6e",
+          "#0369a1",
+          "#0284c7",
+          "#38bdf8",
+          "#7dd3fc",
+          "#bae6fd",
+          "#e0f2fe"
+        ]
+      },
+      "commission-amber": {
+        "role": "tertiary",
+        "displayName": "Commission Amber",
+        "canonical": "oklch(76.9% 0.188 70.08)",
+        "tonalRamp": [
+          "#451a03",
+          "#78350f",
+          "#b45309",
+          "#d97706",
+          "#f59e0b",
+          "#fbbf24",
+          "#fde68a",
+          "#fef3c7"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display Masthead",
+        "purpose": "Hero studio masthead title combining 900 Black and 200 Extralight weights."
+      },
+      "headline": {
+        "displayName": "Section Headline",
+        "purpose": "Commission pitch headline and slide-over drawer titles."
+      },
+      "title": {
+        "displayName": "Dossier Card Title",
+        "purpose": "Principal names on MemberCard and venture titles on BrandCard."
+      },
+      "body": {
+        "displayName": "Editorial Body",
+        "purpose": "Manifesto paragraphs and venture descriptions (62-65ch max measure)."
+      },
+      "label": {
+        "displayName": "Tabular Specification Label",
+        "purpose": "Section indices, discipline headers, skill chips, status badges, and action triggers."
+      }
+    },
+    "shadows": [
+      {
+        "name": "overlay-elevation",
+        "value": "0 25px 50px -12px rgba(0, 0, 0, 0.75)",
+        "purpose": "Separates fixed slide-over drawers from the planar bento canvas."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-swiss-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Crisp exponential deceleration for 1px border brightening, card surface shifts, and staggered grid entrances."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "High-contrast Stark Chalk rectilinear trigger used for Inquire, Start a Project, and VISIT actions.",
+      "html": "<button class=\"ds-btn-primary\"><span>START A PROJECT</span><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"square\" stroke-linejoin=\"miter\"><path d=\"M7 17L17 7\"/><path d=\"M7 7h10v10\"/></svg></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: #ffffff; color: #08080a; border: 1px solid #ffffff; border-radius: 0; font-family: var(--font-mono, monospace); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-primary:hover { background: #e5e5e5; } .ds-btn-primary:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Specification Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Rectilinear 1px-bordered dark trigger used for Portal, Register Venture, and SOURCE links.",
+      "html": "<button class=\"ds-btn-secondary\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 5v14M5 12h14\"/></svg><span>REGISTER VENTURE</span></button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #08080a; color: #e5e5e5; border: 1px solid #404040; border-radius: 0; font-family: var(--font-mono, monospace); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-secondary:hover { border-color: #ffffff; color: #ffffff; } .ds-btn-secondary:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }"
+    },
+    {
+      "name": "Skill Specification Chip",
+      "kind": "chip",
+      "refersTo": "chip-spec",
+      "description": "Compact 0px monospace tag used in SkillMatrix across MemberCard and BrandCard.",
+      "html": "<div class=\"ds-chip-row\"><span class=\"ds-chip-spec\">NEXT.JS 15</span><span class=\"ds-chip-spec\">DESIGN SYSTEMS</span><span class=\"ds-chip-spec\">TYPESCRIPT</span></div>",
+      "css": ".ds-chip-row { display: flex; flex-wrap: wrap; gap: 6px; } .ds-chip-spec { display: inline-block; padding: 2px 8px; background: #08080a; color: #d4d4d8; border: 1px solid #262626; border-radius: 0; font-family: var(--font-mono, monospace); font-size: 11px; letter-spacing: -0.01em; text-transform: uppercase; transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1); } .ds-chip-spec:hover { border-color: #525252; color: #ffffff; }"
+    },
+    {
+      "name": "Telemetry Status Badge",
+      "kind": "chip",
+      "refersTo": "chip-spec",
+      "description": "Rectilinear status indicator with 6px square signal dot used on BrandCard covers.",
+      "html": "<span class=\"ds-status-badge\"><span class=\"ds-status-dot\"></span><span>ACTIVE</span></span>",
+      "css": ".ds-status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px; background: rgba(8, 8, 10, 0.92); color: #6ee7b7; border: 1px solid rgba(4, 120, 87, 0.6); border-radius: 0; font-family: var(--font-mono, monospace); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; } .ds-status-dot { width: 6px; height: 6px; background: #10b981; flex-shrink: 0; }"
+    },
+    {
+      "name": "Rectilinear Dossier Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Recessed obsidian form input with uppercase monospace label and 2px chalk focus ring.",
+      "html": "<div class=\"ds-field-group\"><label class=\"ds-field-label\" for=\"ds-demo-input\">VENTURE NAME</label><input id=\"ds-demo-input\" class=\"ds-input\" type=\"text\" placeholder=\"e.g. OrbitPulse\" /></div>",
+      "css": ".ds-field-group { display: flex; flex-direction: column; gap: 6px; max-width: 320px; } .ds-field-label { font-family: var(--font-mono, monospace); font-size: 12px; color: #d4d4d8; letter-spacing: 0.08em; text-transform: uppercase; } .ds-input { background: #08080a; color: #ffffff; border: 1px solid #262626; border-radius: 0; padding: 8px 12px; font-family: var(--font-sans, sans-serif); font-size: 14px; outline: none; } .ds-input::placeholder { color: #a3a3a3; } .ds-input:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }"
+    },
+    {
+      "name": "Principal Dossier Card",
+      "kind": "card",
+      "refersTo": "card-dossier",
+      "description": "Swiss 1px planar bento card with square monogram frame, discipline label, and specification footer.",
+      "html": "<article class=\"ds-card-dossier\"><div class=\"ds-card-top\"><div class=\"ds-avatar-box\">AK</div></div><div class=\"ds-card-meta\">PRODUCT DESIGNER</div><h3 class=\"ds-card-title\">Alex Kim</h3><div class=\"ds-card-footer\"><span class=\"ds-card-tag\">FIGMA</span><span class=\"ds-card-tag\">DESIGN SYSTEMS</span></div></article>",
+      "css": ".ds-card-dossier { background: var(--color-surface-card, #141418); color: #ffffff; border: 1px solid var(--color-border, rgba(255,255,255,0.11)); border-radius: 0; padding: 24px; max-width: 280px; transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1); } .ds-card-dossier:hover { border-color: var(--color-border-active, rgba(255,255,255,0.45)); background: var(--color-surface-hover, #1b1b21); } .ds-card-top { display: flex; justify-content: space-between; margin-bottom: 20px; } .ds-avatar-box { width: 56px; height: 56px; background: #08080a; border: 1px solid #262626; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono, monospace); font-size: 14px; font-weight: 700; color: #e5e5e5; } .ds-card-meta { font-family: var(--font-mono, monospace); font-size: 11px; color: #a3a3a3; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; } .ds-card-title { font-family: var(--font-sans, sans-serif); font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin: 0; } .ds-card-footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid #262626; display: flex; gap: 6px; } .ds-card-tag { font-family: var(--font-mono, monospace); font-size: 11px; padding: 2px 8px; background: #08080a; border: 1px solid #262626; color: #d4d4d8; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Swiss Architectural Dossier",
+    "overview": "SHOTSHOT Studio Hub embodies Emil Ruder's Swiss International Typographic philosophy translated into a dark, architectural digital index. Rather than relying on decorative gradients, soft pill geometry, or ornamental drop shadows, visual hierarchy is engineered entirely through extreme font-weight contrast, disciplined negative space, tabular monospace specifications, and exposed 1px planar grid hairlines.\n\nEvery surface functions simultaneously as an operational daily dossier for the four studio principals and an authoritative commission showcase for visiting clients and partners. Information is organized into a responsive 12-column `@container`-query bento grid where principal profiles and product ventures lock together with rectilinear precision.\n\nWe explicitly reject rounded consumer SaaS tropes—no pill buttons, no circular avatar masks, no blurred glassmorphic halos, and no decorative color washes.",
+    "keyCharacteristics": [
+      "Rectilinear 0px corner geometry across every card, avatar frame, badge, input, and drawer",
+      "Planar 1px hairline borders that brighten on interaction to articulate structural boundaries",
+      "Extreme variable-font weight contrast pairing 900 Black display headlines with 200 Extralight counter-phrases",
+      "Tabular monospace specification headers (01, 02, 03) and telemetry status codes (ACTIVE, IN DEV, SYNC)",
+      "High-contrast 2px solid chalk focus rings (outline-offset: 2px) on every interactive element"
+    ],
+    "rules": [
+      {
+        "name": "The Monochrome Authority Rule",
+        "body": "Over 95% of any viewport must remain pure monochrome (Architectural Obsidian, Graphite Plate, and Stark Chalk). Semantic hues (Signal Emerald, Telemetry Sky, Commission Amber) appear strictly as 6px square status indicators or 1px bordered telemetry badges—never as large surface fills.",
+        "section": "colors"
+      },
+      {
+        "name": "The Contrast Floor Rule",
+        "body": "Secondary labels, timestamps, and input placeholders must never drop below Ash Muted (#a3a3a3), guaranteeing a minimum 4.5:1 WCAG AA contrast ratio against all dark obsidian and graphite surfaces.",
+        "section": "colors"
+      },
+      {
+        "name": "The Weight Polarity Rule",
+        "body": "Display hierarchy relies on extreme weight contrast (900 Black juxtaposed directly with 200 Extralight) rather than decorative color gradients or italics.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Index Rule",
+        "body": "Every numeric counter (04 PRINCIPALS, 03 ARCHIVED / LIVE, DISCIPLINE 01) must use Geist Mono with font-variant-numeric: tabular-nums and two-digit zero padding so columns align with mechanical precision.",
+        "section": "typography"
+      },
+      {
+        "name": "The Planar Hairline Rule",
+        "body": "Cards and inline controls are flat planes bounded by 1px solid borders (.swiss-border). Never apply drop shadows or glowing halos to grid tiles; hover state is communicated by stepping the border luminance from 11% to 45% white and shifting the surface from Graphite Plate (#141418) to Graphite Hover (#1b1b21).",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do enforce 0px corners across all cards, avatars, buttons, inputs, badges, and drawers to preserve the rectilinear Swiss architectural grid.",
+      "Do apply .swiss-focus (2px solid #ffffff outline with 2px offset) to every interactive link, button, input, and toggle (WCAG 2.2 SC 2.4.7).",
+      "Do ensure asymmetric bento rows in BentoGridLayout always sum to 12 columns on desktop (8+4, 6+6, or 12 for a single/trailing odd venture).",
+      "Do pair every image container with a deterministic typographic fallback (2-letter uppercase monogram for principals, 3-letter VENTURE // ARCHIVE poster block for products) to guard against Notion S3 URL expiry.",
+      "Do respect prefers-reduced-motion via both useReducedMotion() in Framer Motion and the global @media (prefers-reduced-motion: reduce) rule in app/globals.css."
+    ],
+    "donts": [
+      "Don't introduce rounded-lg, rounded-xl, or rounded-full pills or circular avatars anywhere in the interface.",
+      "Don't use placeholder-neutral-600 or text-neutral-500 for readable copy or placeholders; maintain at least Ash Muted (#a3a3a3) for >=4.5:1 contrast.",
+      "Don't create tailwind.config.js or tailwind.config.ts; all design tokens belong in the @theme block of app/globals.css (Tailwind CSS v4 CSS-first).",
+      "Don't add decorative drop shadows, colored border-left accents, or glassmorphic background blurs to bento grid cards."
+    ]
+  }
+}

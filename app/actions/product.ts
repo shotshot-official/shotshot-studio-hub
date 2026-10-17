@@ -18,17 +18,17 @@ export async function createProductAction(data: {
 }): Promise<{ success: boolean; error?: string; id?: string }> {
   const session = await getSession();
   if (!session) {
-    return { success: false, error: 'Sign in is required to publish a project to the matrix.' };
+    return { success: false, error: 'Sign in to add a project.' };
   }
 
   const brandName = data.brandName.trim();
   if (!brandName) {
-    return { success: false, error: 'Brand name is required.' };
+    return { success: false, error: 'Enter a project name.' };
   }
 
   const oneLiner = data.oneLiner.trim();
   if (!oneLiner) {
-    return { success: false, error: 'A one-liner description is required.' };
+    return { success: false, error: 'Enter a short description.' };
   }
 
   // Include current member in project contributors
@@ -46,7 +46,7 @@ export async function createProductAction(data: {
   });
 
   if (!notionId) {
-    return { success: false, error: 'Failed to publish project to Notion database.' };
+    return { success: false, error: 'Could not save the project to Notion. Check your database connection and try again.' };
   }
 
   revalidatePath('/');

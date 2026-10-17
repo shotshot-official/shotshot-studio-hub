@@ -7,103 +7,100 @@
 // 2. app/page.tsx 에서 mockTeamMembers, mockProducts 임포트 및 폴백 로직을 삭제합니다.
 // ============================================================================
 
-import { TeamMember, ProductItem, ChatMessage } from '@/types/notion';
+import { TeamMember, ProductItem } from '@/types/notion';
 
 export const mockTeamMembers: TeamMember[] = [
   {
-    id: 'member-alex-kim',
-    name: 'Alex Kim',
-    role: 'Product Designer',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-    skills: ['Figma', 'Design Systems', 'Variable Fonts', 'Micro-interactions', 'UI/UX'],
+    id: 'member-minsu-seo',
+    name: '서민수',
+    role: 'Creative Technologist & Producer',
+    avatarUrl: undefined,
+    skills: ['Fullstack Dev', 'Next.js', 'Video Production', 'Cinematography', 'Editing', 'Creative Direction'],
     personalLinks: [
-      'https://instagram.com/alexkim.design',
-      'https://alexkim.design',
-      'https://github.com/alexkim',
+      'https://github.com',
+      'https://instagram.com',
+      'https://youtube.com',
     ],
   },
   {
-    id: 'member-chloe-lee',
-    name: 'Chloe Lee',
-    role: 'Frontend Engineer',
-    avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80',
-    skills: ['Next.js 15', 'TailwindCSS v4', 'TypeScript', 'Framer Motion', 'WCAG 2.2'],
+    id: 'member-minkyun-kim',
+    name: '김민균',
+    role: 'Video Director & Producer',
+    avatarUrl: undefined,
+    skills: ['Video Directing', 'Cinematography', 'Premiere Pro', 'Storyboarding', 'Content Strategy'],
     personalLinks: [
-      'https://github.com/chloelee',
-      'https://velog.io/@chloelee',
-      'https://linkedin.com/in/chloelee',
+      'https://youtube.com',
+      'https://instagram.com',
     ],
   },
   {
-    id: 'member-david-park',
-    name: 'David Park',
-    role: 'Fullstack Dev',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
-    skills: ['Node.js', 'React Server Components', 'PostgreSQL', 'Edge Cache', 'API Optimization'],
+    id: 'member-hanseong-yoo',
+    name: '유한성',
+    role: 'Creator & Host',
+    avatarUrl: undefined,
+    skills: ['On-Camera Hosting', 'Local Curation', 'Video Editing', 'Storytelling', 'Interviewing'],
     personalLinks: [
-      'https://github.com/davidpark',
-      'https://blog.davidpark.dev',
-      'https://x.com/davidpark_dev',
+      'https://youtube.com',
+      'https://instagram.com',
     ],
   },
   {
-    id: 'member-sara-choi',
-    name: 'Sara Choi',
-    role: 'Growth Marketer',
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
-    skills: ['Growth Strategy', 'Content Design', 'Brand Storytelling', 'SEO', 'Data Analytics'],
+    id: 'member-jonghyun-won',
+    name: '원종현',
+    role: 'Tech Lead & Service Planner',
+    avatarUrl: undefined,
+    skills: ['Next.js', 'TypeScript', 'Product Planning', 'Database Design', 'API Development'],
     personalLinks: [
-      'https://instagram.com/sara.growth',
-      'https://medium.com/@sarachoi',
-      'https://linkedin.com/in/sarachoi',
+      'https://github.com',
+      'https://linkedin.com',
     ],
   },
 ];
 
 export const mockProducts: ProductItem[] = [
   {
-    id: 'product-shotshot',
-    brandName: 'ShotShot Studio',
+    id: 'product-seoul-vlog',
+    brandName: 'Seoul In-Between (서울 인터루드)',
     status: 'Active',
-    oneLiner: '스위스 미학 비대칭 벤토 그리드와 무서버 Notion Headless CMS 기반 4인 멀티디시플리너리 크리에이티브 팀 거점 허브.',
-    memberIds: ['member-alex-kim', 'member-chloe-lee', 'member-david-park', 'member-sara-choi'],
-    techStack: ['Next.js 15', 'Tailwind CSS v4', 'Notion API', 'Framer Motion', 'Vercel Edge'],
+    oneLiner: '서울의 숨겨진 동네와 크리에이터들의 솔직한 일상을 담아내는 로컬 게스트 토크 & 브이로그 시리즈.',
+    memberIds: ['member-minsu-seo', 'member-minkyun-kim', 'member-hanseong-yoo'],
+    techStack: ['YouTube', 'Cinematic Vlog', 'Premiere Pro', 'Local Culture', 'Interview'],
+    liveUrl: 'https://youtube.com',
+    internalLink: 'https://notion.so',
+    coverImage: 'https://images.unsplash.com/photo-1546874177-9e664107314e?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'product-hanseong-spots',
+    brandName: 'Hanseong Spots (한성의 서울 수첩)',
+    status: 'Active',
+    oneLiner: '뻔한 관광지가 아닌 로컬의 시선으로 발굴한 유한성 추천 서울 골목길과 히든 스팟 영상 가이드.',
+    memberIds: ['member-hanseong-yoo', 'member-minkyun-kim', 'member-minsu-seo'],
+    techStack: ['YouTube', 'Hidden Gems', 'City Walk', 'Local Guide', 'Storytelling'],
+    liveUrl: 'https://youtube.com',
+    internalLink: 'https://notion.so',
+    coverImage: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'product-concept-travel',
+    brandName: 'Budget to Boutique (컨셉 로드트립)',
+    status: 'In Development',
+    oneLiner: '초가성비 배낭여행부터 감성 테마 여행까지, 명확한 예산과 테마로 떠나는 컨셉 여행 시리즈.',
+    memberIds: ['member-minsu-seo', 'member-minkyun-kim', 'member-hanseong-yoo', 'member-jonghyun-won'],
+    techStack: ['Travel Content', 'Budget Travel', 'Theme Roadtrip', 'Production', 'Planning'],
+    liveUrl: 'https://youtube.com',
+    internalLink: 'https://notion.so',
+    coverImage: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'product-seoul-guide',
+    brandName: 'Seoul Pulse & Guide (서울 트렌드 위키)',
+    status: 'In Development',
+    oneLiner: '지금 서울에서 가장 핫한 장소 Top 5와 외국인을 위한 한국 여행 실전 솔루션 웹 & 영상 미디어.',
+    memberIds: ['member-jonghyun-won', 'member-minsu-seo', 'member-minkyun-kim', 'member-hanseong-yoo'],
+    techStack: ['Next.js 15', 'YouTube Shorts', 'Notion API', 'Travel Wiki', 'SEO'],
     liveUrl: 'https://shotshot.dev',
     internalLink: 'https://github.com',
-    coverImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-    id: 'product-devsync',
-    brandName: 'DevSync',
-    status: 'In Development',
-    oneLiner: '분산 환경의 원격 엔지니어링 팀을 위한 초저지연 실시간 페어 프로그래밍 및 비동기 코드 리뷰 허브.',
-    memberIds: ['member-chloe-lee', 'member-david-park'],
-    techStack: ['TypeScript', 'WebRTC', 'PostgreSQL', 'Next.js', 'Tailwind CSS'],
-    liveUrl: 'https://devsync.io',
-    internalLink: 'https://github.com',
-    coverImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-    id: 'product-typecraft',
-    brandName: 'TypeCraft',
-    status: 'Active',
-    oneLiner: '에밀 루더의 스위스 조형 철학에 기반한 가변 폰트(Variable Font) 두께 대비 계산 및 모듈러 타이포그래피 토큰 생성기.',
-    memberIds: ['member-alex-kim', 'member-chloe-lee'],
-    techStack: ['React', 'Variable Fonts', 'Canvas API', 'Tailwind CSS'],
-    liveUrl: 'https://typecraft.design',
-    internalLink: 'https://github.com',
-    coverImage: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-    id: 'product-growthradar',
-    brandName: 'GrowthRadar',
-    status: 'Concept',
-    oneLiner: '마이크로 SaaS 및 크리에이티브 사이드 프로덕트를 위한 AI 에이전트 기반 오가닉 트래픽 성장 지표 추적 및 분석 엔진.',
-    memberIds: ['member-david-park', 'member-sara-choi'],
-    techStack: ['Python', 'FastAPI', 'AI Agent', 'Next.js', 'PostgreSQL'],
-    liveUrl: undefined,
-    internalLink: 'https://github.com',
-    coverImage: undefined, // 이미지 부재 시 다크 그래디언트 폴백 UI 검증용
+    coverImage: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=1200&q=80',
   },
 ];
 
@@ -126,62 +123,6 @@ export function createMockMember(member: Omit<TeamMember, 'id'>): TeamMember {
   };
   mockTeamMembers.push(newMember);
   return newMember;
-}
-
-// ============================================================================
-// [MOCK CHAT MESSAGES] Studio Team Live Feed Mockup
-// ============================================================================
-export const mockChatMessages: ChatMessage[] = [
-  {
-    id: 'msg-1',
-    senderId: 'member-alex-kim',
-    senderName: 'Alex Kim',
-    senderRole: 'Product Designer',
-    senderAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-    content: 'Swiss typography scale and 12-column Bento Grid tokens look clean on desktop!',
-    createdAt: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
-  },
-  {
-    id: 'msg-2',
-    senderId: 'member-chloe-lee',
-    senderName: 'Chloe Lee',
-    senderRole: 'Frontend Engineer',
-    senderAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80',
-    content: 'Just checked the @container queries on tablet & mobile. Smooth responsive transitions.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
-  },
-  {
-    id: 'msg-3',
-    senderId: 'member-david-park',
-    senderName: 'David Park',
-    senderRole: 'Fullstack Dev',
-    senderAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
-    content: 'Notion API integration and 60-second ISR caching are verified. Zero infrastructure cost.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
-  },
-  {
-    id: 'msg-4',
-    senderId: 'member-sara-choi',
-    senderName: 'Sara Choi',
-    senderRole: 'Growth Marketer',
-    senderAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
-    content: 'Awesome work team! Ready to showcase our side project matrix globally.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
-  },
-];
-
-export function getMockChatMessages(): ChatMessage[] {
-  return [...mockChatMessages];
-}
-
-export function addMockChatMessage(msg: Omit<ChatMessage, 'id' | 'createdAt'>): ChatMessage {
-  const newMsg: ChatMessage = {
-    id: `msg-${Date.now()}`,
-    ...msg,
-    createdAt: new Date().toISOString(),
-  };
-  mockChatMessages.push(newMsg);
-  return newMsg;
 }
 
 

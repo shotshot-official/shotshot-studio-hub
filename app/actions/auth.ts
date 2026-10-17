@@ -2,69 +2,56 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { getSession, setSession, clearSession, AuthSession } from '@/lib/auth';
+import { getSession, setSession, clearSession, AuthSession, hashPassword, verifyPassword } from '@/lib/auth';
 import { updateTeamMemberInNotion, createTeamMemberInNotion, getTeamMembers } from '@/lib/notion';
 import { mockTeamMembers, updateMockMember, createMockMember } from '@/lib/mock-data';
 import { TeamMember } from '@/types/notion';
 
-// Preset credentials for 4 core team members to allow instant testing
-const TEAM_CREDENTIALS: Record<string, { memberId: string; password?: string; name: string; role: string; avatarUrl?: string }> = {
-  'alex@shotshot.dev': {
-    memberId: 'member-alex-kim',
-    name: 'Alex Kim',
-    role: 'Product Designer',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-  },
-  'chloe@shotshot.dev': {
-    memberId: 'member-chloe-lee',
-    name: 'Chloe Lee',
-    role: 'Frontend Engineer',
-    avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80',
-  },
-  'david@shotshot.dev': {
-    memberId: 'member-david-park',
-    name: 'David Park',
-    role: 'Fullstack Dev',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
-  },
-  'sara@shotshot.dev': {
-    memberId: 'member-sara-choi',
-    name: 'Sara Choi',
-    role: 'Growth Marketer',
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
-  },
-};
 
 export async function loginAction(formData: FormData): Promise<{ success: boolean; error?: string }> {
   const email = (formData.get('email') as string)?.trim().toLowerCase();
-  const password = formData.get('password') as string;
+  const password = (formData.get('password') as string)?.trim();
 
   if (!email || !password) {
-    return { success: false, error: 'Please enter both email and password.' };
+    return { success: false, error: '이메일과 비밀번호를 모두 입력해 주세요.' };
   }
 
-  // 1. Check preset demo team members
-  const preset = TEAM_CREDENTIALS[email];
-  if (preset) {
-    await setSession({
-      memberId: preset.memberId,
-      email,
-      name: preset.name,
-      role: preset.role,
-      avatarUrl: preset.avatarUrl,
-    });
-    revalidatePath('/');
-    return { success: true };
-  }
-
-  // 2. Check Notion Team DB members if active
+  // 1. Check Notion Team DB members (Live Notion DB connection)
   const notionMembers = await getTeamMembers();
   const matchedNotionMember = notionMembers.find((m) => {
-    const slug = m.name.toLowerCase().replace(/\s+/g, '');
-    return email.startsWith(slug) || (m.personalLink && m.personalLink.includes(email));
+    // 1) Match direct Email property
+    if (m.email && m.email.toLowerCase() === email) return true;
+    // 2) Match email found in PersonalLinks
+    if (m.personalLinks && m.personalLinks.some((link) => link.toLowerCase().includes(email))) return true;
+    if (m.personalLink && m.personalLink.toLowerCase().includes(email)) return true;
+    // 3) Match Korean name or slug
+    const nameSlug = m.name.toLowerCase().replace(/\s+/g, '');
+    const emailPrefix = email.split('@')[0];
+    return emailPrefix === nameSlug || email.includes(nameSlug);
   });
 
   if (matchedNotionMember) {
+    const isPasswordValid = await verifyPassword(password, matchedNotionMember.password);
+    if (!isPasswordValid) {
+      return { success: false, error: '비밀번호가 올바르지 않습니다.' };
+    }
+
+    // Auto-upgrade plain-text password in Notion to SHA-256 cryptographic hash
+    if (
+      matchedNotionMember.password &&
+      matchedNotionMember.password.trim() === password &&
+      password.length < 60
+    ) {
+      try {
+        const secureHash = await hashPassword(password);
+        await updateTeamMemberInNotion(matchedNotionMember.id, {
+          password: secureHash,
+        });
+      } catch (err) {
+        console.warn('Failed to auto-upgrade password hash in Notion:', err);
+      }
+    }
+
     await setSession({
       memberId: matchedNotionMember.id,
       email,
@@ -76,10 +63,15 @@ export async function loginAction(formData: FormData): Promise<{ success: boolea
     return { success: true };
   }
 
-  // 3. Fallback: match by mock team members
+  // 2. Fallback: match by local team members (during local development / Notion sync)
+  if (password !== '1234') {
+    return { success: false, error: '비밀번호가 올바르지 않습니다.' };
+  }
+
   const matchedMock = mockTeamMembers.find((m) => {
-    const slug = m.name.toLowerCase().replace(/\s+/g, '');
-    return email.includes(slug);
+    const nameSlug = m.name.toLowerCase().replace(/\s+/g, '');
+    const emailPrefix = email.split('@')[0];
+    return emailPrefix === nameSlug || email.includes(nameSlug);
   });
 
   if (matchedMock) {
@@ -96,7 +88,7 @@ export async function loginAction(formData: FormData): Promise<{ success: boolea
 
   return {
     success: false,
-    error: 'Member account not found. Please use the 1-click presets or register a new account.',
+    error: '등록된 팀원 계정을 찾을 수 없습니다. 노션 Team DB에 등록된 Gmail 주소인지 확인해 주세요.',
   };
 }
 
@@ -107,7 +99,7 @@ export async function signupAction(formData: FormData): Promise<{ success: boole
   const password = formData.get('password') as string;
 
   if (!name || !email || !password) {
-    return { success: false, error: 'Please fill in all required fields (name, email, password).' };
+    return { success: false, error: 'Enter your name, email, and password.' };
   }
 
   // 1. If Notion Team DB is configured, create member in Notion
@@ -161,10 +153,19 @@ export async function updateProfileAction(data: {
   avatarUrl?: string;
   skills: string[];
   personalLinks: string[];
+  newPassword?: string;
 }): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
   if (!session) {
-    return { success: false, error: 'Authentication required.' };
+    return { success: false, error: 'Sign in to update your profile.' };
+  }
+
+  let hashedPassword: string | undefined = undefined;
+  if (data.newPassword && data.newPassword.trim().length > 0) {
+    if (data.newPassword.trim().length < 4) {
+      return { success: false, error: '새 비밀번호는 최소 4자 이상이어야 합니다.' };
+    }
+    hashedPassword = await hashPassword(data.newPassword.trim());
   }
 
   // If in Mock Mode or mock member ID
@@ -184,6 +185,7 @@ export async function updateProfileAction(data: {
       avatarUrl: data.avatarUrl,
       skills: data.skills,
       personalLinks: data.personalLinks,
+      password: hashedPassword,
     });
     if (!updated) {
       console.warn('Failed to update Notion directly, applying fallback update in memory.');
@@ -202,19 +204,3 @@ export async function updateProfileAction(data: {
   return { success: true };
 }
 
-// Quick 1-click Demo Login for any team member
-export async function quickDemoLoginAction(email: string): Promise<boolean> {
-  const preset = TEAM_CREDENTIALS[email];
-  if (!preset) return false;
-
-  await setSession({
-    memberId: preset.memberId,
-    email,
-    name: preset.name,
-    role: preset.role,
-    avatarUrl: preset.avatarUrl,
-  });
-
-  revalidatePath('/');
-  return true;
-}

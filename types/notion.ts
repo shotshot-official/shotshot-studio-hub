@@ -10,6 +10,8 @@ export interface TeamMember {
   skills: string[];
   avatarUrl?: string;
   status?: MemberStatus;
+  email?: string;
+  password?: string;
   personalLink?: string;
   personalLinks?: string[];
 }
@@ -62,16 +64,5 @@ export interface StatusBadgeProps {
 
 export interface SkillMatrixProps {
   skills: string[];
-}
-
-// Studio Team Message / Chat Data Contract
-export interface ChatMessage {
-  id: string;
-  senderId: string;
-  senderName: string;
-  senderRole: string;
-  senderAvatar?: string;
-  content: string;
-  createdAt: string; // ISO string
 }
 

@@ -64,18 +64,6 @@
 | `InternalLinks` | **URL** | 유효한 HTTPS URL | 깃허브 리포지토리 또는 내부 문서 |
 | `CoverImage` | **Files & media** | 외부 링크 또는 Notion 업로드 파일 | 프로젝트 카드 대표 비주얼 이미지 |
 
-### 2.3 Messages DB 스키마 (`NOTION_MESSAGES_DB_ID`)
-실시간 팀 스튜디오 피드 및 비동기 소통용 메시지를 관리합니다.
-
-| 속성명 (Property) | Notion 타입 | 허용 값 / 포맷 | 설명 |
-| :--- | :--- | :--- | :--- |
-| `Content` | **Title** | Text | 채팅 메시지 내용 본문 |
-| `SenderName` | **Rich Text** | Text | 발신자 성명 |
-| `SenderRole` | **Rich Text** | Text | 발신자 역할 / 직무 |
-| `SenderAvatar` | **URL** | 유효한 HTTPS URL | 프로필 이미지 URL (없을 시 이니셜) |
-| `SenderEmail` | **Rich Text** | Text (Email 포맷) | 회원 식별 계정 |
-| `CreatedAt` | **Date** | ISO 8601 Date String | 메시지 발송 일시 |
-
 ---
 
 ## 3. Notion S3 이미지 URL 만료(1시간) 방어 아키텍처
@@ -139,20 +127,9 @@ export interface ProductItem {
   coverImage?: string;
 }
 
-export interface ChatMessage {
-  id: string;
-  content: string;
-  senderName: string;
-  senderRole?: string;
-  senderAvatar?: string;
-  senderEmail?: string;
-  createdAt: string;
-}
-
 export interface StudioHubData {
   members: TeamMember[];
   products: ProductItem[];
-  messages?: ChatMessage[];
 }
 
 // UI Component Props
