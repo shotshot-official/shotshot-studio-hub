@@ -45,9 +45,9 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-2 px-2.5 py-1 text-[11px] font-mono tracking-wider uppercase border ${style.border} ${style.text}`}
+      className={`inline-flex items-center gap-2 px-2.5 py-1 text-xs font-mono tracking-wider uppercase border rounded-[4px] ${style.border} ${style.text}`}
     >
-      <span className={`w-1.5 h-1.5 shrink-0 ${style.indicator}`} />
+      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${style.indicator}`} />
       <span>{style.code}</span>
     </span>
   );

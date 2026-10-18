@@ -29,48 +29,65 @@ export default async function HomePage() {
   // --------------------------------------------------------------------------
 
   return (
-    <main className="min-h-screen bg-[var(--color-canvas)] text-neutral-100 px-6 py-8 md:px-12 md:py-12 lg:px-16 lg:py-14 relative">
-      {/* Swiss International Typographic Masthead */}
-      <header className="max-w-7xl mx-auto mb-16">
-        {/* Top Navigation Bar */}
-        <nav aria-label="Main" className="flex items-center justify-between pb-6 mb-12 border-b border-neutral-800">
-          <div className="flex items-center gap-3 text-xs font-mono tracking-widest text-neutral-400 uppercase">
-            <span className="font-bold text-white tracking-wider">SHOTSHOT</span>
-            <span aria-hidden="true" className="text-neutral-700">/</span>
-            <span className="hidden sm:inline">STUDIO</span>
-            <span aria-hidden="true" className="hidden sm:inline text-neutral-700">/</span>
-            <span className="inline-flex items-center gap-2 text-emerald-400">
-              <span className="w-1.5 h-1.5 bg-[var(--color-status-available)]" />
-              <span className="text-[11px]">AVAILABLE</span>
-            </span>
+    <main className="min-h-screen bg-[var(--color-canvas)] text-neutral-100 px-4 py-6 sm:px-8 sm:py-10 md:px-12 md:py-12 lg:px-16 lg:py-14 relative overflow-x-hidden">
+      {/* Swiss Editorial Masthead */}
+      <header className="max-w-7xl mx-auto mb-8 sm:mb-16">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 sm:gap-6 pb-5 sm:pb-8 border-b border-neutral-800">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-[-0.04em] text-white uppercase font-sans leading-[0.95]">
+              SHOTSHOT{' '}
+              <span className="text-neutral-400 font-extralight">
+                STUDIO
+              </span>
+            </h1>
+            <p className="text-neutral-400 text-sm sm:text-base md:text-lg mt-2.5 sm:mt-5 leading-relaxed font-normal">
+              An independent creative studio working across visual media, software, and storytelling.
+            </p>
           </div>
 
-          <HeaderAuthButtons
-            session={session}
-            members={members}
-            teamDbId={process.env.NOTION_TEAM_DB_ID}
-          />
-        </nav>
-
-        {/* Minimal Hero Title */}
-        <div className="max-w-3xl">
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-black tracking-[-0.04em] text-white uppercase font-sans leading-[0.95]">
-            SHOTSHOT{' '}
-            <span className="text-neutral-400 font-extralight">
-              STUDIO
-            </span>
-          </h1>
-          <p className="text-neutral-400 text-base md:text-lg mt-5 leading-relaxed font-normal">
-            An independent creative studio working across visual media, software, and storytelling.
-          </p>
+          <div className="shrink-0 sm:pt-2">
+            <HeaderAuthButtons
+              session={session}
+              members={members}
+              teamDbId={process.env.NOTION_MEMBER_DB_ID}
+            />
+          </div>
         </div>
+
+        {/* Mobile Quick-Jump Architectural Index Strip (<sm) */}
+        <nav
+          aria-label="Section index"
+          className="sm:hidden grid grid-cols-3 divide-x divide-neutral-800 border-b border-neutral-800 font-mono text-xs uppercase tracking-wider"
+        >
+          <a
+            href="#team"
+            className="swiss-focus py-2.5 px-2 flex items-center justify-between text-neutral-300 hover:text-white hover:bg-neutral-900/60 transition-colors"
+          >
+            <span>01 TEAM</span>
+            <span className="text-neutral-400">{String(members.length).padStart(2, '0')}</span>
+          </a>
+          <a
+            href="#works"
+            className="swiss-focus py-2.5 px-2 flex items-center justify-between text-neutral-300 hover:text-white hover:bg-neutral-900/60 transition-colors"
+          >
+            <span>02 WORKS</span>
+            <span className="text-neutral-400">{String(products.length).padStart(2, '0')}</span>
+          </a>
+          <a
+            href="#inquire"
+            className="swiss-focus py-2.5 px-2 flex items-center justify-between text-neutral-300 hover:text-white hover:bg-neutral-900/60 transition-colors"
+          >
+            <span>03 INQUIRE</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-neutral-400" />
+          </a>
+        </nav>
       </header>
 
       {/* Main Bento Grid Content Area */}
       <div className="max-w-7xl mx-auto">
         {members.length === 0 && products.length === 0 ? (
           <div className="swiss-border p-12 md:p-16 text-center">
-            <div className="inline-flex items-center justify-center w-10 h-10 border border-neutral-700 bg-neutral-950 text-neutral-300 mb-4 font-mono text-xs">
+            <div className="inline-flex items-center justify-center w-10 h-10 border border-neutral-700 bg-neutral-950 text-neutral-300 mb-4 font-mono text-xs rounded-[4px]">
               00
             </div>
             <h2 className="text-2xl font-bold text-white tracking-tight mb-2 uppercase">
@@ -92,11 +109,11 @@ export default async function HomePage() {
       </div>
 
       {/* 03 // Commercial Inquiry & Commission Section */}
-      <section id="inquire" className="max-w-7xl mx-auto mt-20">
-        <div className="flex items-center justify-between gap-4 pb-3 mb-6 border-b border-neutral-800">
+      <section id="inquire" className="max-w-7xl mx-auto mt-14 sm:mt-20 scroll-mt-6">
+        <div className="flex items-center justify-between gap-4 pb-3 mb-4 sm:mb-6 border-b border-neutral-800">
           <div className="flex items-baseline gap-3">
             <span className="text-xs font-mono font-bold text-white tracking-widest">03</span>
-            <h2 className="text-sm uppercase tracking-[0.2em] text-neutral-300 font-mono">
+            <h2 className="text-xs sm:text-sm uppercase tracking-[0.2em] text-neutral-300 font-mono">
               COLLABORATE
             </h2>
           </div>
@@ -105,36 +122,32 @@ export default async function HomePage() {
           </span>
         </div>
 
-        <div className="swiss-border p-8 md:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start lg:items-end">
+        <div className="swiss-border p-5 sm:p-8 md:p-12 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start lg:items-end">
           <div className="lg:col-span-8">
-            <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight leading-tight max-w-2xl">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight leading-tight max-w-2xl">
               Let&apos;s make something memorable.
             </h3>
-            <p className="text-sm md:text-base text-neutral-300 mt-3 max-w-[65ch] leading-relaxed">
+            <p className="text-sm md:text-base text-neutral-300 mt-2.5 sm:mt-3 max-w-[65ch] leading-relaxed">
               Open for brand collaborations, video productions, and original content ideas.
               We plan, shoot, edit, and build everything in-house.
             </p>
-            <div className="flex flex-wrap gap-2 mt-6 font-mono text-[11px] uppercase tracking-wider text-neutral-300">
-              <span className="px-2.5 py-1 bg-neutral-950 border border-neutral-800">
-                BRAND PARTNERSHIPS
-              </span>
-              <span className="px-2.5 py-1 bg-neutral-950 border border-neutral-800">
-                VIDEO PRODUCTION
-              </span>
-              <span className="px-2.5 py-1 bg-neutral-950 border border-neutral-800">
-                ORIGINAL CONTENT
-              </span>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-5 sm:mt-6 pt-4 border-t border-neutral-800/80 font-mono text-xs uppercase tracking-wider text-neutral-400">
+              <span className="text-neutral-300">BRAND PARTNERSHIPS</span>
+              <span aria-hidden="true">·</span>
+              <span className="text-neutral-300">VIDEO PRODUCTION</span>
+              <span aria-hidden="true">·</span>
+              <span className="text-neutral-300">ORIGINAL CONTENT</span>
             </div>
           </div>
 
-          <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col lg:items-end justify-between w-full gap-4 pt-6 lg:pt-0 border-t lg:border-t-0 border-neutral-800">
+          <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col lg:items-end justify-between w-full gap-4 pt-5 lg:pt-0 border-t lg:border-t-0 border-neutral-800">
             <div className="text-left lg:text-right font-mono text-xs text-neutral-400">
               <div className="uppercase tracking-wider text-neutral-300">DIRECT DISPATCH</div>
               <div className="mt-0.5">hello@shotshot.studio</div>
             </div>
             <a
               href="mailto:hello@shotshot.studio?subject=Collaboration%20Inquiry%20%E2%80%94%20SHOTSHOT%20Studio"
-              className="swiss-focus inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-black hover:bg-neutral-200 font-mono text-xs font-bold uppercase tracking-widest transition-colors"
+              className="swiss-focus w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-black hover:bg-neutral-200 font-mono text-xs font-bold uppercase tracking-widest rounded-[4px] transition-colors"
             >
               <span>Get in Touch</span>
               <ArrowUpRight className="w-4 h-4" />
@@ -143,14 +156,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Swiss Editorial Colophon Footer */}
-      <footer className="max-w-7xl mx-auto mt-20 pt-8 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-400 font-mono uppercase tracking-wider gap-4">
-        <div>&copy; {new Date().getFullYear()} SHOTSHOT STUDIO COLLECTIVE. ALL RIGHTS RESERVED.</div>
-        <div className="flex items-center gap-4">
-          <span>GRID: 12-COL ASYMMETRIC</span>
-          <span>/</span>
-          <span>EDITION 2026</span>
-        </div>
+      {/* Footer */}
+      <footer className="max-w-7xl mx-auto mt-16 sm:mt-20 pt-6 sm:pt-8 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 font-mono uppercase tracking-wider gap-3">
+        <div>&copy; {new Date().getFullYear()} SHOTSHOT STUDIO. ALL RIGHTS RESERVED.</div>
       </footer>
     </main>
   );

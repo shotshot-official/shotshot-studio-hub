@@ -44,11 +44,11 @@ export default function BentoGridLayout({
     <div className="@container w-full">
       {/* 01 // Team Members Section (4 Members x 3 Columns = 12 Track Grid) */}
       {members.length > 0 && (
-        <section className="mb-16">
-          <div className="flex items-center justify-between gap-4 pb-3 mb-6 border-b border-neutral-800">
-            <div className="flex items-baseline gap-3">
+        <section id="team" className="mb-10 sm:mb-16 scroll-mt-6">
+          <div className="flex items-center justify-between gap-3 pb-2.5 sm:pb-3 mb-3 sm:mb-6 border-b border-neutral-800">
+            <div className="flex items-baseline gap-2.5 sm:gap-3">
               <span className="text-xs font-mono font-bold text-white tracking-widest">01</span>
-              <h2 className="text-sm uppercase tracking-[0.2em] text-neutral-300 font-mono">
+              <h2 className="text-xs sm:text-sm uppercase tracking-[0.2em] text-neutral-300 font-mono">
                 TEAM
               </h2>
             </div>
@@ -61,7 +61,7 @@ export default function BentoGridLayout({
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-1 @[640px]:grid-cols-2 @[1024px]:grid-cols-12 gap-4"
+            className="grid grid-cols-1 @[640px]:grid-cols-2 @[1024px]:grid-cols-12 gap-2 sm:gap-4"
           >
             {members.map((member) => (
               <motion.div
@@ -77,23 +77,23 @@ export default function BentoGridLayout({
       )}
 
       {/* 02 // Products & Side Brands Section (12-Column Asymmetric Matrix) */}
-      <section>
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-3 mb-6 border-b border-neutral-800">
-          <div className="flex items-baseline gap-3">
+      <section id="works" className="scroll-mt-6">
+        <div className="flex items-center justify-between gap-3 pb-2.5 sm:pb-3 mb-3 sm:mb-6 border-b border-neutral-800">
+          <div className="flex items-baseline gap-2.5 sm:gap-3">
             <span className="text-xs font-mono font-bold text-white tracking-widest">02</span>
-            <h2 className="text-sm uppercase tracking-[0.2em] text-neutral-300 font-mono">
+            <h2 className="text-xs sm:text-sm uppercase tracking-[0.2em] text-neutral-300 font-mono">
               SELECTED WORKS
             </h2>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-4">
             <span className="text-xs text-neutral-400 font-mono uppercase tracking-wider">
               {String(products.length).padStart(2, '0')} PROJECTS
             </span>
             <button
               type="button"
               onClick={() => setIsProjectDrawerOpen(true)}
-              className="swiss-focus inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase tracking-wider bg-neutral-950 border border-neutral-700 hover:border-white text-neutral-200 hover:text-white transition-colors"
+              className="swiss-focus inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 min-h-[34px] sm:min-h-0 text-xs font-mono uppercase tracking-wider bg-neutral-950 border border-neutral-700 hover:border-white text-neutral-200 hover:text-white rounded-[4px] transition-colors"
             >
               <Plus className="w-3.5 h-3.5 text-neutral-400" />
               <span>New Project</span>
@@ -109,7 +109,7 @@ export default function BentoGridLayout({
             <button
               type="button"
               onClick={() => setIsProjectDrawerOpen(true)}
-              className="swiss-focus inline-flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider font-medium bg-white text-black hover:bg-neutral-200 transition-colors"
+              className="swiss-focus inline-flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider font-medium bg-white text-black hover:bg-neutral-200 rounded-[4px] transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add First Project</span>
@@ -120,7 +120,7 @@ export default function BentoGridLayout({
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-1 @[768px]:grid-cols-2 @[1024px]:grid-cols-12 gap-4"
+            className="grid grid-cols-1 @[768px]:grid-cols-2 @[1024px]:grid-cols-12 gap-3 sm:gap-4"
           >
             {products.map((product, idx) => {
               // Asymmetric Bento Sizing on 12-column desktop track:
@@ -144,7 +144,12 @@ export default function BentoGridLayout({
                   variants={itemVariants}
                   className={`col-span-1 ${colSpan}`}
                 >
-                  <BrandCard product={product} members={members} />
+                  <BrandCard
+                    product={product}
+                    members={members}
+                    featured={idx === 0}
+                    index={idx}
+                  />
                 </motion.div>
               );
             })}

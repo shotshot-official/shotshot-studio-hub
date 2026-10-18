@@ -88,7 +88,7 @@ export async function loginAction(formData: FormData): Promise<{ success: boolea
 
   return {
     success: false,
-    error: '등록된 팀원 계정을 찾을 수 없습니다. 노션 Team DB에 등록된 Gmail 주소인지 확인해 주세요.',
+    error: '등록된 팀원 계정을 찾을 수 없습니다. 이메일을 다시 확인해 주세요.',
   };
 }
 
@@ -102,9 +102,9 @@ export async function signupAction(formData: FormData): Promise<{ success: boole
     return { success: false, error: 'Enter your name, email, and password.' };
   }
 
-  // 1. If Notion Team DB is configured, create member in Notion
+  // 1. If Notion Member DB is configured, create member in Notion
   let memberId = '';
-  if (process.env.NOTION_TEAM_DB_ID && process.env.NOTION_TOKEN) {
+  if (process.env.NOTION_MEMBER_DB_ID && process.env.NOTION_TOKEN) {
     const notionPageId = await createTeamMemberInNotion({
       name,
       role,
@@ -168,6 +168,10 @@ export async function updateProfileAction(data: {
     hashedPassword = await hashPassword(data.newPassword.trim());
   }
 
+  if (data.avatarUrl && data.avatarUrl.startsWith('blob:')) {
+    return { success: false, error: '이미지 파일 업로드가 완료되지 않았습니다. 잠시 후 다시 시도해 주세요.' };
+  }
+
   // If in Mock Mode or mock member ID
   if (session.memberId.startsWith('member-')) {
     updateMockMember(session.memberId, {
@@ -188,7 +192,10 @@ export async function updateProfileAction(data: {
       password: hashedPassword,
     });
     if (!updated) {
-      console.warn('Failed to update Notion directly, applying fallback update in memory.');
+      return {
+        success: false,
+        error: '노션 데이터베이스 저장에 실패했습니다. Notion 토큰 및 권한 설정을 확인해 주세요.',
+      };
     }
   }
 
@@ -197,7 +204,7 @@ export async function updateProfileAction(data: {
     ...session,
     name: data.name,
     role: data.role,
-    avatarUrl: data.avatarUrl,
+    avatarUrl: data.avatarUrl || undefined,
   });
 
   revalidatePath('/');

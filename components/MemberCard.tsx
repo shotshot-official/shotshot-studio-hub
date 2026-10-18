@@ -30,31 +30,43 @@ export default function MemberCard({ member }: MemberCardProps) {
   const hasAvatar = member.avatarUrl && !avatarError;
 
   return (
-    <article className="swiss-border p-6 flex flex-col justify-between h-full group relative">
+    <article className="swiss-border p-3.5 sm:p-6 flex flex-col justify-between h-full group relative overflow-hidden">
       <div>
-        {/* Top Header: Architectural Square Avatar & Multi-Social Links Row */}
-        <div className="flex items-start justify-between gap-3 mb-6">
-          {/* Profile Picture with Monogram Fallback */}
-          <div className="relative w-14 h-14 bg-neutral-950 border border-neutral-800 group-hover:border-neutral-600 transition-colors shrink-0 flex items-center justify-center overflow-hidden">
-            {hasAvatar ? (
-              <Image
-                src={member.avatarUrl!}
-                alt={member.name}
-                fill
-                className="object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-300"
-                sizes="56px"
-                onError={() => setAvatarError(true)}
-              />
-            ) : (
-              <span className="text-sm font-mono font-bold tracking-wider text-neutral-200 select-none">
-                {getInitials(member.name)}
-              </span>
-            )}
+        {/* Top Header: Compact Horizontal Dossier Row on Mobile (<sm), Architectural Avatar Row on Desktop (sm+) */}
+        <div className="flex items-center sm:items-start justify-between gap-3 sm:mb-6">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            {/* Profile Picture with Monogram Fallback & Micro-radius Polaroid Frame */}
+            <div className="relative w-10 h-10 sm:w-14 sm:h-14 bg-neutral-950 border border-neutral-800 group-hover:border-neutral-600 transition-colors shrink-0 flex items-center justify-center overflow-hidden rounded-[6px]">
+              {hasAvatar ? (
+                <Image
+                  src={member.avatarUrl!}
+                  alt={member.name}
+                  fill
+                  className="object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-300"
+                  sizes="56px"
+                  onError={() => setAvatarError(true)}
+                />
+              ) : (
+                <span className="text-xs sm:text-sm font-mono font-bold tracking-wider text-neutral-200 select-none">
+                  {getInitials(member.name)}
+                </span>
+              )}
+            </div>
+
+            {/* Mobile Inline Identity (<sm): Eliminates 75% empty horizontal row space */}
+            <div className="sm:hidden min-w-0 flex-1">
+              <h3 className="text-base font-bold text-white tracking-tight leading-snug truncate">
+                {member.name}
+              </h3>
+              <p className="text-xs font-mono uppercase tracking-wider text-neutral-400 truncate mt-0.5">
+                {member.role}
+              </p>
+            </div>
           </div>
 
-          {/* Social / Personal Links Bar (Instagram, Blog, GitHub, etc.) */}
+          {/* Social / Personal Links Bar (Touch-friendly 32x32px targets on mobile) */}
           {links.length > 0 && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5 sm:gap-1 shrink-0">
               {links.map((url, idx) => {
                 const { icon: Icon, label } = resolveSocialLink(url);
                 return (
@@ -65,9 +77,9 @@ export default function MemberCard({ member }: MemberCardProps) {
                     rel="noopener noreferrer"
                     title={`${member.name} — ${label}`}
                     aria-label={`${member.name} ${label}`}
-                    className="swiss-focus text-neutral-400 hover:text-white p-1.5 border border-transparent hover:border-neutral-700 hover:bg-neutral-950 transition-colors"
+                    className="swiss-focus text-neutral-400 hover:text-white w-8 h-8 sm:w-auto sm:h-auto sm:p-1.5 inline-flex items-center justify-center border border-neutral-800/80 sm:border-transparent hover:border-neutral-700 bg-neutral-950/60 sm:bg-transparent hover:bg-neutral-950 rounded-[4px] transition-colors"
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </a>
                 );
               })}
@@ -75,18 +87,20 @@ export default function MemberCard({ member }: MemberCardProps) {
           )}
         </div>
 
-        {/* Discipline Role & Member Name (Swiss Weight Contrast) */}
-        <p className="text-[11px] font-mono uppercase tracking-widest text-neutral-400 mb-1">
-          {member.role}
-        </p>
-        <h3 className="text-2xl font-bold text-white tracking-tight leading-snug">
-          {member.name}
-        </h3>
+        {/* Desktop Stacked Discipline Role & Member Name (sm+) */}
+        <div className="hidden sm:block">
+          <p className="text-xs font-mono uppercase tracking-widest text-neutral-400 mb-1">
+            {member.role}
+          </p>
+          <h3 className="text-2xl font-bold text-white tracking-tight leading-snug">
+            {member.name}
+          </h3>
+        </div>
       </div>
 
-      {/* Skills Specification Matrix */}
-      <div className="mt-6 pt-4 border-t border-neutral-800/80">
-        <SkillMatrix skills={member.skills} />
+      {/* Skills Specification Matrix: 1-line typographic spec on mobile, full chip matrix on sm+ */}
+      <div className="mt-2.5 pt-2.5 sm:mt-6 sm:pt-4 border-t border-neutral-800/80">
+        <SkillMatrix skills={member.skills} variant="member" />
       </div>
     </article>
   );

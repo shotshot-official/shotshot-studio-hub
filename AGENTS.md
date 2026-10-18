@@ -89,13 +89,14 @@ shotshot/
 
 ## 4. 노션 DB 스키마 및 매핑 가이드라인
 
-### 4.1 Team DB (`NOTION_TEAM_DB_ID`)
-- **Name** (`Title`): 팀원 이름 (Alex Kim, Chloe Lee, David Park, Sara Choi)
-- **Role** (`Select`): `Product Designer`, `Frontend Engineer`, `Fullstack Dev`, `Growth Marketer`
+### 4.1 Member DB (`NOTION_MEMBER_DB_ID` / 호환: `NOTION_TEAM_DB_ID`)
+- **Name** (`Title`): 팀원 이름 (서민수, 김민균, 유한성, 원종현)
+- **Role** (`Select` 또는 `Rich Text`): `Creative Technologist & Producer`, `Video Director & Producer`, `Creator & Host`, `Tech Lead & Service Planner`
 - **Avatar** (`Files & media` 또는 `URL`): 프로필 사진 (미입력 시 팀원 이니셜 Fallback)
-- **Skills** (`Multi-select`): `Next.js`, `TailwindCSS`, `Figma`, `TypeScript`, `Node.js`, `React` 등
+- **Skills** (`Multi-select`): `Next.js`, `TypeScript`, `Video Directing`, `Cinematography`, `Service Architecture` 등
+- **Email** (`Email`): 팀원 로그인용 실제 Gmail 주소
+- **Password** (`Rich Text`): 64자리 SHA-256 암호화 해시 (초기 기본값 `1234` 자동 업그레이드 지원)
 - **PersonalLinks** (`URL` 또는 `Rich Text`): Instagram, 개인 블로그, GitHub, LinkedIn, X 등 다중 링크 (도메인 분석 기반 전용 아이콘 자동 라우팅)
-- *(참고: 팀원 카드의 `Status` 표시는 디자인 간결성을 위해 제거됨)*
 
 ### 4.2 Products DB (`NOTION_PRODUCTS_DB_ID`)
 - **BrandName** (`Title`): 프로젝트/브랜드 명칭

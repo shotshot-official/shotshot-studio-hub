@@ -1,12 +1,14 @@
 // components/ProjectDrawer.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { X, Plus, Sparkles, CheckCircle2, AlertCircle, Rocket, Upload } from 'lucide-react';
+import { X, Plus, Sparkles, CheckCircle2, AlertCircle, Rocket, Upload, RefreshCw } from 'lucide-react';
 import { TeamMember, ProductStatus } from '@/types/notion';
 import { AuthSession } from '@/lib/auth';
 import { createProductAction } from '@/app/actions/product';
+import { uploadImageAction } from '@/app/actions/upload';
+import { toast } from '@/lib/toast';
 
 interface ProjectDrawerProps {
   isOpen: boolean;
@@ -40,10 +42,28 @@ export default function ProjectDrawer({
   const [liveUrl, setLiveUrl] = useState('');
   const [internalLink, setInternalLink] = useState('');
   const [coverImage, setCoverImage] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  async function handleCoverFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCover(true);
+    setError(null);
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await uploadImageAction(formData);
+    setUploadingCover(false);
+    if (res.success && res.url) {
+      setCoverImage(res.url);
+    } else {
+      setError(res.error || 'Failed to upload cover image.');
+    }
+  }
 
   useEffect(() => {
     if (!isOpen) return;
@@ -102,6 +122,7 @@ export default function ProjectDrawer({
     setLoading(false);
     if (res.success) {
       setSuccess(true);
+      toast.success('Project added to archive.');
       setTimeout(() => {
         setSuccess(false);
         onClose();
@@ -114,6 +135,7 @@ export default function ProjectDrawer({
       }, 1200);
     } else {
       setError(res.error || 'Could not save project. Please try again.');
+      toast.error(res.error || 'Could not save project.');
     }
   }
 
@@ -132,7 +154,7 @@ export default function ProjectDrawer({
       />
 
       {/* Slide-over Drawer */}
-      <div className="relative w-full max-w-lg bg-[var(--color-surface)] border-l border-neutral-800 p-6 md:p-8 flex flex-col justify-between h-full overflow-y-auto shadow-2xl z-10">
+      <div className="relative w-full max-w-lg bg-[var(--color-surface)] border-l border-neutral-800 p-5 sm:p-6 md:p-8 flex flex-col justify-between h-full overflow-y-auto shadow-2xl z-10">
         <div>
           {/* Header */}
           <div className="flex items-center justify-between pb-6 border-b border-neutral-800">
@@ -261,7 +283,7 @@ export default function ProjectDrawer({
                           : 'bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-neutral-600'
                       }`}
                     >
-                      <div className="relative w-6 h-6 bg-neutral-900 border border-neutral-700 overflow-hidden shrink-0 flex items-center justify-center text-[10px] font-mono">
+                      <div className="relative w-6 h-6 bg-neutral-900 border border-neutral-700 overflow-hidden shrink-0 flex items-center justify-center text-xs font-mono">
                         {member.avatarUrl ? (
                           <Image
                             src={member.avatarUrl}
@@ -276,7 +298,7 @@ export default function ProjectDrawer({
                       </div>
                       <div className="truncate flex-1">
                         <div className="font-medium truncate">{member.name}</div>
-                        <div className="text-[10px] text-neutral-400 font-mono truncate">{member.role}</div>
+                        <div className="text-xs text-neutral-400 font-mono truncate">{member.role}</div>
                       </div>
                     </button>
                   );
@@ -347,28 +369,38 @@ export default function ProjectDrawer({
               </label>
 
               <div className="space-y-2">
-                <a
-                  href={
-                    productsDbId
-                      ? `https://www.notion.so/${productsDbId.replace(/-/g, '')}`
-                      : 'https://www.notion.so'
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="swiss-focus w-full flex items-center justify-center gap-2 px-3 py-2 bg-neutral-950 hover:bg-neutral-900 border border-neutral-700 hover:border-white text-xs font-mono uppercase tracking-wider text-white transition-colors group"
-                >
-                  <Upload className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" />
-                  <span>Upload in Notion &rarr;</span>
-                </a>
-
                 <input
-                  id="venture-cover-image"
-                  type="url"
-                  value={coverImage}
-                  onChange={(e) => setCoverImage(e.target.value)}
-                  placeholder="Or paste image URL (https://...)"
-                  className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs text-white placeholder-neutral-400 swiss-focus font-mono"
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  onChange={handleCoverFile}
+                  className="hidden"
                 />
+
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingCover}
+                    className="swiss-focus w-full flex items-center justify-center gap-2 px-3 py-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 hover:border-white text-xs font-mono uppercase tracking-wider text-white transition-colors"
+                  >
+                    {uploadingCover ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Upload className="w-3.5 h-3.5 text-neutral-400" />
+                    )}
+                    <span>{uploadingCover ? 'Uploading...' : 'Upload Image'}</span>
+                  </button>
+
+                  <input
+                    id="venture-cover-image"
+                    type="url"
+                    value={coverImage}
+                    onChange={(e) => setCoverImage(e.target.value)}
+                    placeholder="Or paste image URL (https://...)"
+                    className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs text-white placeholder-neutral-400 swiss-focus font-mono"
+                  />
+                </div>
               </div>
 
               {coverImage && (
@@ -382,8 +414,8 @@ export default function ProjectDrawer({
                   />
                 </div>
               )}
-              <p className="text-[11px] text-neutral-400 font-mono mt-1">
-                Attach a cover file in Notion or paste a public image link.
+              <p className="text-xs text-neutral-400 font-mono mt-1">
+                JPG, PNG, WebP (Max 10MB)
               </p>
             </div>
 
@@ -445,7 +477,7 @@ export default function ProjectDrawer({
         </div>
 
         {/* Footer info */}
-        <div className="text-[11px] text-neutral-400 font-mono uppercase tracking-wider pt-6 text-center border-t border-neutral-800">
+        <div className="text-xs text-neutral-400 font-mono uppercase tracking-wider pt-6 text-center border-t border-neutral-800">
           Synced directly to Notion workspace
         </div>
       </div>

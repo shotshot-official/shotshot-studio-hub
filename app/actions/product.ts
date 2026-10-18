@@ -46,7 +46,7 @@ export async function createProductAction(data: {
   });
 
   if (!notionId) {
-    return { success: false, error: 'Could not save the project to Notion. Check your database connection and try again.' };
+    return { success: false, error: 'Failed to create project. Please try again.' };
   }
 
   revalidatePath('/');

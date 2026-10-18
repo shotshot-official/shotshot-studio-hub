@@ -56,6 +56,8 @@ export interface MemberCardProps {
 export interface BrandCardProps {
   product: ProductItem;
   members: TeamMember[];
+  featured?: boolean;
+  index?: number;
 }
 
 export interface StatusBadgeProps {
@@ -64,5 +66,6 @@ export interface StatusBadgeProps {
 
 export interface SkillMatrixProps {
   skills: string[];
+  variant?: 'default' | 'member' | 'featured';
 }
 

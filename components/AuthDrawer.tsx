@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Lock, User, UserPlus, ArrowRight } from 'lucide-react';
 import { loginAction, signupAction } from '@/app/actions/auth';
+import { toast } from '@/lib/toast';
 
 interface AuthDrawerProps {
   isOpen: boolean;
@@ -34,9 +35,11 @@ export default function AuthDrawer({ isOpen, onClose }: AuthDrawerProps) {
     const res = await loginAction(formData);
     setLoading(false);
     if (res.success) {
+      toast.success('Signed in successfully.');
       onClose();
     } else {
       setError(res.error || 'Failed to sign in.');
+      toast.error(res.error || 'Failed to sign in.');
     }
   }
 
@@ -48,9 +51,11 @@ export default function AuthDrawer({ isOpen, onClose }: AuthDrawerProps) {
     const res = await signupAction(formData);
     setLoading(false);
     if (res.success) {
+      toast.success('Account created successfully.');
       onClose();
     } else {
       setError(res.error || 'Failed to register.');
+      toast.error(res.error || 'Failed to register.');
     }
   }
 
@@ -69,7 +74,7 @@ export default function AuthDrawer({ isOpen, onClose }: AuthDrawerProps) {
       />
 
       {/* Slide-over Drawer Panel */}
-      <div className="relative w-full max-w-md bg-[var(--color-surface)] border-l border-neutral-800 p-6 md:p-8 flex flex-col justify-between h-full overflow-y-auto shadow-2xl z-10">
+      <div className="relative w-full max-w-md bg-[var(--color-surface)] border-l border-neutral-800 p-5 sm:p-6 md:p-8 flex flex-col justify-between h-full overflow-y-auto shadow-2xl z-10">
         <div>
           {/* Header */}
           <div className="flex items-center justify-between pb-6 border-b border-neutral-800">
@@ -173,7 +178,7 @@ export default function AuthDrawer({ isOpen, onClose }: AuthDrawerProps) {
                     name="password"
                     type="password"
                     required
-                    placeholder="PW: 1234"
+                    placeholder="••••••••"
                     className="w-full bg-neutral-950 border border-neutral-800 pl-9 pr-3 py-2 text-sm text-white placeholder-neutral-400 swiss-focus font-mono"
                   />
                 </div>
@@ -275,7 +280,7 @@ export default function AuthDrawer({ isOpen, onClose }: AuthDrawerProps) {
         </div>
 
         {/* Footer info */}
-        <div className="text-[11px] text-neutral-400 font-mono uppercase tracking-wider pt-6 text-center border-t border-neutral-800">
+        <div className="text-xs text-neutral-400 font-mono uppercase tracking-wider pt-6 text-center border-t border-neutral-800">
           Team-only access &bull; Session secured
         </div>
       </div>

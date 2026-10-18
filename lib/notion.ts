@@ -7,7 +7,7 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-const TEAM_DB_ID = process.env.NOTION_TEAM_DB_ID || '';
+const MEMBER_DB_ID = process.env.NOTION_MEMBER_DB_ID || '';
 const PRODUCTS_DB_ID = process.env.NOTION_PRODUCTS_DB_ID || '';
 
 function isFullPage(response: unknown): response is PageObjectResponse {
@@ -15,14 +15,14 @@ function isFullPage(response: unknown): response is PageObjectResponse {
 }
 
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  if (!TEAM_DB_ID || !process.env.NOTION_TOKEN) {
-    console.warn('NOTION_TEAM_DB_ID or NOTION_TOKEN is not defined in environment variables.');
+  if (!MEMBER_DB_ID || !process.env.NOTION_TOKEN) {
+    console.warn('NOTION_MEMBER_DB_ID or NOTION_TOKEN is not defined in environment variables.');
     return [];
   }
 
   try {
     const response = await notion.databases.query({
-      database_id: TEAM_DB_ID,
+      database_id: MEMBER_DB_ID,
     });
 
     return response.results.filter(isFullPage).map((page) => {
@@ -123,7 +123,12 @@ export async function getProducts(): Promise<ProductItem[]> {
         memberIds = rawText.split(/,\s*/).map((s) => s.trim()).filter(Boolean);
       }
 
-      const techStack = props.TechStack?.type === 'multi_select' ? props.TechStack.multi_select.map((t) => t.name) : [];
+      const techStack =
+        props.TechStack?.type === 'multi_select'
+          ? props.TechStack.multi_select.map((t) => t.name)
+          : props.Tags?.type === 'multi_select'
+          ? props.Tags.multi_select.map((t) => t.name)
+          : [];
       const liveUrl = props.LiveURL?.type === 'url' ? props.LiveURL.url : undefined;
       const internalLink = props.InternalLinks?.type === 'url' ? props.InternalLinks.url : undefined;
 
@@ -181,7 +186,7 @@ export async function createProductInNotion(data: {
       OneLiner: {
         rich_text: [{ text: { content: data.oneLiner } }],
       },
-      TechStack: {
+      Tags: {
         multi_select: (data.techStack || []).map((t) => ({ name: t })),
       },
     };
@@ -232,37 +237,67 @@ export async function updateTeamMemberInNotion(
   if (!process.env.NOTION_TOKEN) return false;
 
   try {
+    // 1. Retrieve page first to dynamically inspect which properties exist on this Notion page
+    const page = await notion.pages.retrieve({ page_id: pageId });
+    if (!isFullPage(page)) return false;
+    const pageProps = page.properties;
+
     const properties: Record<string, unknown> = {};
 
-    if (data.name) {
+    if (data.name && pageProps.Name) {
       properties.Name = {
         title: [{ text: { content: data.name } }],
       };
     }
-    if (data.role) {
+    if (data.role && pageProps.Role) {
       properties.Role = {
         select: { name: data.role },
       };
     }
-    if (data.skills) {
+    if (data.skills && pageProps.Skills) {
       properties.Skills = {
         multi_select: data.skills.map((s) => ({ name: s })),
       };
     }
-    if (data.avatarUrl) {
-      // In Notion Team DB, Avatar is configured as URL type
-      properties.Avatar = { url: data.avatarUrl };
+
+    // Avatar update: support both setting a new public URL and clearing the photo
+    if (data.avatarUrl !== undefined && pageProps.Avatar) {
+      const avatarPropType = pageProps.Avatar.type;
+      if (avatarPropType === 'url') {
+        properties.Avatar = { url: data.avatarUrl ? data.avatarUrl : null };
+      } else if (avatarPropType === 'files') {
+        properties.Avatar = {
+          files: data.avatarUrl
+            ? [
+                {
+                  name: 'avatar',
+                  type: 'external',
+                  external: { url: data.avatarUrl },
+                },
+              ]
+            : [],
+        };
+      }
     }
-    if (data.personalLinks) {
-      properties.PersonalLinks = {
-        rich_text: [
-          {
-            text: { content: data.personalLinks.join('\n') },
-          },
-        ],
-      };
+
+    // Only set PersonalLinks if the property actually exists in this Notion DB
+    if (data.personalLinks && pageProps.PersonalLinks) {
+      if (pageProps.PersonalLinks.type === 'rich_text') {
+        properties.PersonalLinks = {
+          rich_text: [
+            {
+              text: { content: data.personalLinks.join('\n') },
+            },
+          ],
+        };
+      } else if (pageProps.PersonalLinks.type === 'url') {
+        properties.PersonalLinks = {
+          url: data.personalLinks[0] || null,
+        };
+      }
     }
-    if (data.password) {
+
+    if (data.password && pageProps.Password) {
       properties.Password = {
         rich_text: [
           {
@@ -272,32 +307,11 @@ export async function updateTeamMemberInNotion(
       };
     }
 
-    try {
-      await notion.pages.update({
-        page_id: pageId,
-        properties: properties as Parameters<typeof notion.pages.update>[0]['properties'],
-      });
-      return true;
-    } catch (updateErr) {
-      // Fallback: If Avatar happens to be 'files' type in some workspace schemas
-      if (data.avatarUrl) {
-        properties.Avatar = {
-          files: [
-            {
-              name: 'avatar',
-              type: 'external',
-              external: { url: data.avatarUrl },
-            },
-          ],
-        };
-        await notion.pages.update({
-          page_id: pageId,
-          properties: properties as Parameters<typeof notion.pages.update>[0]['properties'],
-        });
-        return true;
-      }
-      throw updateErr;
-    }
+    await notion.pages.update({
+      page_id: pageId,
+      properties: properties as Parameters<typeof notion.pages.update>[0]['properties'],
+    });
+    return true;
   } catch (error) {
     console.error('Failed to update Notion team member:', error);
     return false;
@@ -311,7 +325,7 @@ export async function createTeamMemberInNotion(data: {
   avatarUrl?: string;
   personalLinks?: string[];
 }): Promise<string | null> {
-  if (!TEAM_DB_ID || !process.env.NOTION_TOKEN) return null;
+  if (!MEMBER_DB_ID || !process.env.NOTION_TOKEN) return null;
 
   try {
     const properties: Record<string, unknown> = {
@@ -327,7 +341,7 @@ export async function createTeamMemberInNotion(data: {
     };
 
     if (data.avatarUrl) {
-      // Notion Team DB uses URL type for Avatar
+      // Notion Member DB uses URL type for Avatar
       properties.Avatar = { url: data.avatarUrl };
     }
 
@@ -342,7 +356,7 @@ export async function createTeamMemberInNotion(data: {
     }
 
     const response = await notion.pages.create({
-      parent: { database_id: TEAM_DB_ID },
+      parent: { database_id: MEMBER_DB_ID },
       properties: properties as Parameters<typeof notion.pages.create>[0]['properties'],
     });
 
