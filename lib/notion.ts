@@ -64,15 +64,33 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
         avatarUrl = avatarProp.url;
       }
 
-      // Extract Personal Links (Single URL or space/comma separated URLs in Rich Text)
+      // Extract Personal Links (Single URL or newline/space/comma separated URLs in Rich Text)
       const personalLinks: string[] = [];
-      if (props.PersonalLinks?.type === 'url' && props.PersonalLinks.url) {
-        personalLinks.push(props.PersonalLinks.url);
-      } else if (props.PersonalLinks?.type === 'rich_text') {
-        const rawText = props.PersonalLinks.rich_text.map((t) => t.plain_text).join(' ');
+      const linksProp =
+        props.PersonalLinks ||
+        props.Links ||
+        props.SocialLinks ||
+        props.Social ||
+        props.SNS ||
+        props.Link;
+
+      if (linksProp?.type === 'url' && linksProp.url) {
+        personalLinks.push(linksProp.url);
+      } else if (linksProp?.type === 'rich_text') {
+        const rawText = linksProp.rich_text.map((t) => t.plain_text).join('\n');
         const matchedUrls = rawText.match(/https?:\/\/[^\s,]+/g);
-        if (matchedUrls) {
+        if (matchedUrls && matchedUrls.length > 0) {
           personalLinks.push(...matchedUrls);
+        } else {
+          // Fallback: split by newlines, commas, or spaces for raw domain entries (e.g. github.com/user)
+          const tokens = rawText.split(/[\n,\s]+/).map((s) => s.trim()).filter(Boolean);
+          for (const token of tokens) {
+            if (/^https?:\/\//i.test(token) || token.startsWith('mailto:')) {
+              personalLinks.push(token);
+            } else if (token.includes('.') && !token.includes('@')) {
+              personalLinks.push(`https://${token}`);
+            }
+          }
         }
         if (!email) {
           const matchedEmail = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
@@ -280,18 +298,26 @@ export async function updateTeamMemberInNotion(
       }
     }
 
-    // Only set PersonalLinks if the property actually exists in this Notion DB
-    if (data.personalLinks && pageProps.PersonalLinks) {
-      if (pageProps.PersonalLinks.type === 'rich_text') {
-        properties.PersonalLinks = {
-          rich_text: [
-            {
-              text: { content: data.personalLinks.join('\n') },
-            },
-          ],
+    // Update PersonalLinks: dynamically find PersonalLinks, Links, SocialLinks, Social, SNS, Link
+    const linksPropKey = Object.keys(pageProps).find((key) =>
+      ['personallinks', 'links', 'sociallinks', 'social', 'sns', 'link'].includes(key.toLowerCase())
+    );
+
+    if (data.personalLinks !== undefined && linksPropKey && pageProps[linksPropKey]) {
+      const targetProp = pageProps[linksPropKey];
+      if (targetProp.type === 'rich_text') {
+        properties[linksPropKey] = {
+          rich_text:
+            data.personalLinks.length > 0
+              ? [
+                  {
+                    text: { content: data.personalLinks.join('\n') },
+                  },
+                ]
+              : [],
         };
-      } else if (pageProps.PersonalLinks.type === 'url') {
-        properties.PersonalLinks = {
+      } else if (targetProp.type === 'url') {
+        properties[linksPropKey] = {
           url: data.personalLinks[0] || null,
         };
       }

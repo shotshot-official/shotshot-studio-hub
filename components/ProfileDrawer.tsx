@@ -62,7 +62,7 @@ export default function ProfileDrawer({
       setError(null);
       setSuccess(false);
     }
-  }, [isOpen, initialName, initialRole, initialAvatar]);
+  }, [isOpen, initialName, initialRole, initialAvatar, initialSkills, initialLinks]);
 
   // Compute if any form field has been modified
   const isNameChanged = name.trim() !== initialName.trim();
@@ -141,10 +141,15 @@ export default function ProfileDrawer({
   }
 
   function handleAddLink() {
-    const trimmed = newLink.trim();
-    if (trimmed && !personalLinks.includes(trimmed)) {
-      setPersonalLinks([...personalLinks, trimmed]);
-      setNewLink('');
+    let trimmed = newLink.trim();
+    if (trimmed) {
+      if (!/^https?:\/\//i.test(trimmed) && !trimmed.startsWith('mailto:')) {
+        trimmed = `https://${trimmed}`;
+      }
+      if (!personalLinks.includes(trimmed)) {
+        setPersonalLinks([...personalLinks, trimmed]);
+        setNewLink('');
+      }
     }
   }
 
