@@ -3,43 +3,43 @@ import { getTeamMembers, getProducts } from '@/lib/notion';
 import { getSession } from '@/lib/auth';
 import BentoGridLayout from '@/components/BentoGridLayout';
 import HeaderAuthButtons from '@/components/HeaderAuthButtons';
+import IntroSplashScreen from '@/components/IntroSplashScreen';
+import ShimmerCta from '@/components/ShimmerCta';
+import StudioLogo from '@/components/StudioLogo';
 import { ArrowUpRight } from 'lucide-react';
-
-// ============================================================================
-// [MOCK DATA IMPORT] 노션 연동 후 제거 시: 이 임포트와 아래 Fallback 로직을 삭제하세요.
-import { mockTeamMembers, mockProducts } from '@/lib/mock-data';
-// ============================================================================
 
 // Incremental Static Regeneration (ISR): Revalidate cache in background every 60 seconds
 export const revalidate = 60;
 
 export default async function HomePage() {
-  // Parallel Data Fetching via Server Component with Graceful Fallbacks
-  const [notionMembers, notionProducts, session] = await Promise.all([
+  // Parallel Data Fetching directly from Notion Headless CMS
+  const [members, products, session] = await Promise.all([
     getTeamMembers(),
     getProducts(),
     getSession(),
   ]);
 
-  // --------------------------------------------------------------------------
-  // [MOCK DATA FALLBACK] 노션 DB 연결 시 자동 해제되며, 수동 삭제도 가능합니다.
-  const isUsingMock = notionMembers.length === 0 && notionProducts.length === 0;
-  const members = isUsingMock ? mockTeamMembers : notionMembers;
-  const products = isUsingMock ? mockProducts : notionProducts;
-  // --------------------------------------------------------------------------
-
   return (
     <main className="min-h-screen bg-[var(--color-canvas)] text-neutral-100 px-4 py-6 sm:px-8 sm:py-10 md:px-12 md:py-12 lg:px-16 lg:py-14 relative overflow-x-hidden">
+      {/* Kinetic Intro & FLIP Header Transition Overlay */}
+      <IntroSplashScreen />
+
       {/* Swiss Editorial Masthead */}
       <header className="max-w-7xl mx-auto mb-8 sm:mb-16">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 sm:gap-6 pb-5 sm:pb-8 border-b border-neutral-800">
           <div className="max-w-3xl">
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-[-0.04em] text-white uppercase font-sans leading-[0.95]">
-              SHOTSHOT{' '}
-              <span className="text-neutral-400 font-extralight">
-                STUDIO
-              </span>
-            </h1>
+            <div
+              id="studio-brand-anchor"
+              className="inline-flex items-center gap-2.5 sm:gap-4 md:gap-5 whitespace-nowrap"
+            >
+              <StudioLogo size="lg" />
+              <h1 className="text-[clamp(1.5rem,6.8vw,2.25rem)] sm:text-6xl md:text-7xl font-black tracking-[-0.04em] text-white uppercase font-sans leading-[0.95] whitespace-nowrap">
+                SHOTSHOT{' '}
+                <span className="text-neutral-400 font-extralight">
+                  STUDIO
+                </span>
+              </h1>
+            </div>
             <p className="text-neutral-400 text-sm sm:text-base md:text-lg mt-2.5 sm:mt-5 leading-relaxed font-normal">
               An independent creative studio working across visual media, software, and storytelling.
             </p>
@@ -145,20 +145,22 @@ export default async function HomePage() {
               <div className="uppercase tracking-wider text-neutral-300">DIRECT DISPATCH</div>
               <div className="mt-0.5">hello@shotshot.studio</div>
             </div>
-            <a
+            <ShimmerCta
               href="mailto:hello@shotshot.studio?subject=Collaboration%20Inquiry%20%E2%80%94%20SHOTSHOT%20Studio"
-              className="swiss-focus w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-black hover:bg-neutral-200 font-mono text-xs font-bold uppercase tracking-widest rounded-[4px] transition-colors"
+              variant="primary"
             >
-              <span>Get in Touch</span>
-              <ArrowUpRight className="w-4 h-4" />
-            </a>
+              Get in Touch
+            </ShimmerCta>
           </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="max-w-7xl mx-auto mt-16 sm:mt-20 pt-6 sm:pt-8 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 font-mono uppercase tracking-wider gap-3">
-        <div>&copy; {new Date().getFullYear()} SHOTSHOT STUDIO. ALL RIGHTS RESERVED.</div>
+        <div className="flex items-center gap-2.5">
+          <StudioLogo size="xs" />
+          <span>&copy; {new Date().getFullYear()} SHOTSHOT STUDIO. ALL RIGHTS RESERVED.</span>
+        </div>
       </footer>
     </main>
   );

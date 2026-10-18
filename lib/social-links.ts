@@ -8,6 +8,9 @@ import {
   BookOpen,
   Youtube,
   Mail,
+  FileText,
+  ArrowUpRight,
+  Play,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -51,3 +54,25 @@ export function resolveSocialLink(url: string): SocialLinkInfo {
   // Graceful Fallback: Globe icon for any personal portfolio, studio page, or custom domain
   return { icon: Globe, label: 'Website' };
 }
+
+export function resolveProductLink(url: string, kind: 'internal' | 'live'): SocialLinkInfo {
+  const lower = url.toLowerCase();
+
+  if (lower.includes('github.com') || lower.includes('gitlab.com')) {
+    return { icon: Github, label: 'SOURCE' };
+  }
+  if (lower.includes('notion.so') || lower.includes('notion.site') || lower.includes('docs.google.com')) {
+    return { icon: FileText, label: 'DOCS' };
+  }
+  if (lower.includes('youtube.com') || lower.includes('youtu.be') || lower.includes('vimeo.com')) {
+    return { icon: Play, label: kind === 'live' ? 'WATCH' : 'TRAILER' };
+  }
+  if (lower.includes('instagram.com')) {
+    return { icon: Instagram, label: 'CHANNEL' };
+  }
+
+  return kind === 'internal'
+    ? { icon: FileText, label: 'ARCHIVE' }
+    : { icon: ArrowUpRight, label: 'VISIT' };
+}
+

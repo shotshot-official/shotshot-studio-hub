@@ -1,7 +1,7 @@
 // components/BentoGridLayout.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { BentoGridLayoutProps } from '@/types/notion';
 import MemberCard from './MemberCard';
@@ -16,7 +16,22 @@ export default function BentoGridLayout({
   productsDbId,
 }: BentoGridLayoutProps) {
   const [isProjectDrawerOpen, setIsProjectDrawerOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const shouldReduceMotion = useReducedMotion();
+
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of products) {
+      if (p.category) set.add(p.category);
+    }
+    return ['ALL', ...Array.from(set)];
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      return selectedCategory === 'ALL' || p.category === selectedCategory;
+    });
+  }, [products, selectedCategory]);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -39,6 +54,14 @@ export default function BentoGridLayout({
       },
     },
   };
+
+  function handleOpenNewProject() {
+    if (!session) {
+      window.dispatchEvent(new CustomEvent('open-auth-drawer'));
+      return;
+    }
+    setIsProjectDrawerOpen(true);
+  }
 
   return (
     <div className="@container w-full">
@@ -69,7 +92,7 @@ export default function BentoGridLayout({
                 variants={itemVariants}
                 className="col-span-1 @[640px]:col-span-1 @[1024px]:col-span-3"
               >
-                <MemberCard member={member} />
+                <MemberCard member={member} products={products} />
               </motion.div>
             ))}
           </motion.div>
@@ -78,7 +101,7 @@ export default function BentoGridLayout({
 
       {/* 02 // Products & Side Brands Section (12-Column Asymmetric Matrix) */}
       <section id="works" className="scroll-mt-6">
-        <div className="flex items-center justify-between gap-3 pb-2.5 sm:pb-3 mb-3 sm:mb-6 border-b border-neutral-800">
+        <div className="flex items-center justify-between gap-3 pb-2.5 sm:pb-3 mb-3 sm:mb-4 border-b border-neutral-800">
           <div className="flex items-baseline gap-2.5 sm:gap-3">
             <span className="text-xs font-mono font-bold text-white tracking-widest">02</span>
             <h2 className="text-xs sm:text-sm uppercase tracking-[0.2em] text-neutral-300 font-mono">
@@ -88,11 +111,11 @@ export default function BentoGridLayout({
 
           <div className="flex items-center gap-2.5 sm:gap-4">
             <span className="text-xs text-neutral-400 font-mono uppercase tracking-wider">
-              {String(products.length).padStart(2, '0')} PROJECTS
+              {String(filteredProducts.length).padStart(2, '0')} / {String(products.length).padStart(2, '0')} PROJECTS
             </span>
             <button
               type="button"
-              onClick={() => setIsProjectDrawerOpen(true)}
+              onClick={handleOpenNewProject}
               className="swiss-focus inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 min-h-[34px] sm:min-h-0 text-xs font-mono uppercase tracking-wider bg-neutral-950 border border-neutral-700 hover:border-white text-neutral-200 hover:text-white rounded-[4px] transition-colors"
             >
               <Plus className="w-3.5 h-3.5 text-neutral-400" />
@@ -101,39 +124,74 @@ export default function BentoGridLayout({
           </div>
         </div>
 
-        {products.length === 0 ? (
+        {/* Interactive Category Filter Bar */}
+        {products.length > 0 && categories.length > 1 && (
+          <div className="flex flex-wrap items-center gap-1.5 mb-5 pb-3 border-b border-neutral-800/60" role="group" aria-label="Filter projects by category">
+            {categories.map((cat) => {
+              const isActive = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`swiss-focus px-2.5 py-1 text-xs font-mono uppercase tracking-wider border rounded-[4px] transition-colors ${
+                    isActive
+                      ? 'bg-white text-black border-white font-bold'
+                      : 'bg-neutral-950 text-neutral-400 border-neutral-800 hover:border-neutral-600 hover:text-white'
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {filteredProducts.length === 0 ? (
           <div className="swiss-border p-12 text-center border-dashed">
             <p className="text-xs font-mono uppercase tracking-wider text-neutral-400 mb-4">
-              NO PROJECTS REGISTERED YET
+              {products.length === 0
+                ? 'NO PROJECTS REGISTERED YET'
+                : 'NO PROJECTS MATCH THE SELECTED FILTER'}
             </p>
-            <button
-              type="button"
-              onClick={() => setIsProjectDrawerOpen(true)}
-              className="swiss-focus inline-flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider font-medium bg-white text-black hover:bg-neutral-200 rounded-[4px] transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add First Project</span>
-            </button>
+            {products.length === 0 ? (
+              <button
+                type="button"
+                onClick={handleOpenNewProject}
+                className="swiss-focus inline-flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider font-medium bg-white text-black hover:bg-neutral-200 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add First Project</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory('ALL');
+                }}
+                className="swiss-focus inline-flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider font-medium bg-neutral-900 border border-neutral-700 text-white hover:border-white transition-colors"
+              >
+                <span>Reset Filter</span>
+              </button>
+            )}
           </div>
         ) : (
           <motion.div
+            key={selectedCategory}
             variants={containerVariants}
             initial="hidden"
             animate="visible"
             className="grid grid-cols-1 @[768px]:grid-cols-2 @[1024px]:grid-cols-12 gap-3 sm:gap-4"
           >
-            {products.map((product, idx) => {
-              // Asymmetric Bento Sizing on 12-column desktop track:
-              // - 1st item: 8 columns (Hero Flagship)
-              // - 2nd item: 4 columns (Counterweight)
-              // - Remaining items: 6 columns (Balanced Diptych), or 12 columns for trailing odd item
+            {filteredProducts.map((product, idx) => {
               let colSpan = '@[768px]:col-span-1 @[1024px]:col-span-6';
-              if (products.length === 1) {
+              if (filteredProducts.length === 1) {
                 colSpan = '@[768px]:col-span-2 @[1024px]:col-span-12';
-              } else if (products.length >= 2) {
+              } else if (filteredProducts.length >= 2) {
                 if (idx === 0) colSpan = '@[768px]:col-span-2 @[1024px]:col-span-8';
                 else if (idx === 1) colSpan = '@[768px]:col-span-1 @[1024px]:col-span-4';
-                else if (idx === products.length - 1 && products.length % 2 === 1) {
+                else if (idx === filteredProducts.length - 1 && filteredProducts.length % 2 === 1) {
                   colSpan = '@[768px]:col-span-2 @[1024px]:col-span-12';
                 }
               }
@@ -147,7 +205,7 @@ export default function BentoGridLayout({
                   <BrandCard
                     product={product}
                     members={members}
-                    featured={idx === 0}
+                    featured={idx === 0 && selectedCategory === 'ALL'}
                     index={idx}
                   />
                 </motion.div>

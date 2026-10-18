@@ -68,8 +68,7 @@ shotshot/
 │   ├── MemberCard.tsx             # 4인 팀원 프로필 타일 (아바타 + 멀티 소셜 링크)
 │   ├── ProfileDrawer.tsx          # 마이페이지 프로필 편집 서랍
 │   ├── ProjectDrawer.tsx          # 사이드 프로젝트 / 브랜드 신규 등록 서랍 (Notion Products DB 연동)
-│   ├── SkillMatrix.tsx            # 압축형 스킬 칩(Pill) 매트릭스
-│   └── StatusBadge.tsx            # 상태(Status) 인디케이터 (색상 코드화)
+│   └── SkillMatrix.tsx            # 압축형 스킬 칩(Pill) 매트릭스
 ├── app/actions/
 │   ├── auth.ts                    # 경량 Web Crypto 세션 Server Actions
 │   └── product.ts                 # 사이드 프로젝트 신규 등록 Server Actions
@@ -100,7 +99,6 @@ shotshot/
 
 ### 4.2 Products DB (`NOTION_PRODUCTS_DB_ID`)
 - **BrandName** (`Title`): 프로젝트/브랜드 명칭
-- **Status** (`Select`): `Active`, `In Development`, `Archived`, `Concept`
 - **OneLiner** (`Rich Text`): 한 줄 핵심 설명 (최대 150자)
 - **Members** (`Relation`): Team DB 페이지 ID 관계형 연결 (다대다 가능)
 - **TechStack** (`Multi-select`): 사용 기술 태그 배열
@@ -114,7 +112,6 @@ shotshot/
 
 1. **컬러 시스템**:
    - 모노크롬 중심의 절제된 팔레트 (Dark Background: `neutral-950`, Card Surface: `neutral-900/60`, Borders: `neutral-800/80`, Foreground: `neutral-100`, Muted: `neutral-400`).
-   - 상태 표시 색상: `Available` (Emerald-500), `In Project` (Sky-500), `Busy` (Amber-500), `Away` (Neutral-500).
 2. **12-컬럼 비대칭 비율**:
    - 모바일: `col-span-12` (단일 스택)
    - 태블릿/중간 너비: MemberCard `col-span-6`, BrandCard `col-span-12`

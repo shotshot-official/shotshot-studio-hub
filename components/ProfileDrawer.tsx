@@ -48,9 +48,15 @@ export default function ProfileDrawer({
   const initialAvatar = currentMember?.avatarUrl || session.avatarUrl || '';
   const initialSkills = currentMember?.skills || ['Next.js', 'TypeScript', 'Tailwind CSS'];
   const initialLinks = currentMember?.personalLinks || (currentMember?.personalLink ? [currentMember.personalLink] : []);
+  const initialBio = currentMember?.bio || '';
+  const initialSpecialty = currentMember?.specialty || '';
+  const initialQuote = currentMember?.featuredQuote || '';
 
   const [name, setName] = useState(initialName);
   const [role, setRole] = useState(initialRole);
+  const [bio, setBio] = useState(initialBio);
+  const [specialty, setSpecialty] = useState(initialSpecialty);
+  const [featuredQuote, setFeaturedQuote] = useState(initialQuote);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatar);
   const [skills, setSkills] = useState<string[]>(initialSkills);
   const [newSkill, setNewSkill] = useState('');
@@ -75,6 +81,9 @@ export default function ProfileDrawer({
     if (isOpen) {
       setName(initialName);
       setRole(initialRole);
+      setBio(initialBio);
+      setSpecialty(initialSpecialty);
+      setFeaturedQuote(initialQuote);
       setAvatarUrl(initialAvatar);
       setSkills(initialSkills);
       setPersonalLinks(initialLinks);
@@ -86,7 +95,17 @@ export default function ProfileDrawer({
       setError(null);
       setSuccess(false);
     }
-  }, [isOpen, initialName, initialRole, initialAvatar, initialSkills, initialLinks]);
+  }, [
+    isOpen,
+    initialName,
+    initialRole,
+    initialBio,
+    initialSpecialty,
+    initialQuote,
+    initialAvatar,
+    initialSkills,
+    initialLinks,
+  ]);
 
   // Compute password validity
   const isPasswordChanged = newPassword.trim().length > 0;
@@ -97,6 +116,9 @@ export default function ProfileDrawer({
   // Compute if any form field has been modified
   const isNameChanged = name.trim() !== initialName.trim();
   const isRoleChanged = role.trim() !== initialRole.trim();
+  const isBioChanged = bio.trim() !== initialBio.trim();
+  const isSpecialtyChanged = specialty.trim() !== initialSpecialty.trim();
+  const isQuoteChanged = featuredQuote.trim() !== initialQuote.trim();
   const isAvatarChanged = avatarUrl.trim() !== initialAvatar.trim();
   const isSkillsChanged =
     skills.length !== initialSkills.length ||
@@ -108,6 +130,9 @@ export default function ProfileDrawer({
   const isDirty =
     isNameChanged ||
     isRoleChanged ||
+    isBioChanged ||
+    isSpecialtyChanged ||
+    isQuoteChanged ||
     isAvatarChanged ||
     isSkillsChanged ||
     isLinksChanged ||
@@ -189,21 +214,21 @@ export default function ProfileDrawer({
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (uploading) {
-      setError('사진 업로드가 진행 중입니다. 잠시 후 다시 저장해 주세요.');
+      setError('Photo upload is still in progress. Please wait a moment.');
       return;
     }
     if (avatarUrl.startsWith('blob:')) {
-      setError('사진 파일 업로드가 완료되지 않았습니다. 다시 업로드해 주세요.');
+      setError('Photo upload did not complete. Please upload the image again.');
       return;
     }
 
     if (isPasswordChanged) {
       if (!isPasswordLengthOk) {
-        setError('새 비밀번호는 최소 4자 이상이어야 합니다.');
+        setError('New password must be at least 4 characters.');
         return;
       }
       if (!isPasswordMatch) {
-        setError('새 비밀번호와 확인 입력이 일치하지 않습니다.');
+        setError('New password and confirmation do not match.');
         return;
       }
     }
@@ -215,6 +240,9 @@ export default function ProfileDrawer({
     const res = await updateProfileAction({
       name,
       role,
+      bio: bio.trim(),
+      specialty: specialty.trim(),
+      featuredQuote: featuredQuote.trim(),
       avatarUrl: avatarUrl.trim(),
       skills,
       personalLinks,
@@ -338,7 +366,7 @@ export default function ProfileDrawer({
                   onClick={() => fileInputRef.current?.click()}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={handleDrop}
-                  className="relative group w-20 h-20 bg-neutral-950 border-2 border-dashed border-neutral-700 hover:border-white transition-colors shrink-0 flex items-center justify-center overflow-hidden cursor-pointer rounded-[6px]"
+                  className="relative group w-20 h-20 rounded-full bg-neutral-950 border-2 border-dashed border-neutral-700 hover:border-white transition-colors shrink-0 flex items-center justify-center overflow-hidden cursor-pointer"
                   title="Click or drag an image here to upload"
                 >
                   {avatarUrl ? (
@@ -441,7 +469,59 @@ export default function ProfileDrawer({
                 required
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-sm text-white swiss-focus rounded-[4px]"
+                className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-sm text-white swiss-focus"
+              />
+            </div>
+
+            {/* Specialty & Dossier Bio (V2 Schema) */}
+            <div>
+              <label
+                htmlFor="profile-specialty"
+                className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
+              >
+                Core Specialty Line
+              </label>
+              <input
+                id="profile-specialty"
+                type="text"
+                value={specialty}
+                onChange={(e) => setSpecialty(e.target.value)}
+                placeholder="e.g. System Architecture · Product Strategy"
+                className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs font-mono text-white placeholder-neutral-400 swiss-focus"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="profile-bio"
+                className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
+              >
+                Dossier Bio
+              </label>
+              <textarea
+                id="profile-bio"
+                rows={3}
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Introduce your creative practice and studio responsibilities."
+                className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs text-white placeholder-neutral-400 swiss-focus leading-relaxed"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="profile-quote"
+                className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
+              >
+                Featured Motto / Statement
+              </label>
+              <input
+                id="profile-quote"
+                type="text"
+                value={featuredQuote}
+                onChange={(e) => setFeaturedQuote(e.target.value)}
+                placeholder="A short creative principle displayed on your dossier page."
+                className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs font-mono text-white placeholder-neutral-400 swiss-focus"
               />
             </div>
 
@@ -574,7 +654,7 @@ export default function ProfileDrawer({
                         Password &amp; Security
                       </span>
                       {isPasswordChanged && isPasswordValid && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-mono uppercase bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 rounded-[3px]">
+                        <span className="px-1.5 py-0.5 text-xs font-mono uppercase bg-emerald-950/80 text-emerald-400 border border-emerald-800/60">
                           READY
                         </span>
                       )}

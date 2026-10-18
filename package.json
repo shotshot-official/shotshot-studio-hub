@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",
+    "@vercel/analytics": "^2.0.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.4.7",
     "lucide-react": "^0.475.0",

@@ -65,7 +65,7 @@ export default function HeaderAuthButtons({ session, members, teamDbId }: Header
         {!session && (
           <a
             href="#inquire"
-            className="swiss-focus inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] sm:min-h-0 text-xs font-mono uppercase tracking-wider bg-white text-black hover:bg-neutral-200 font-medium transition-colors"
+            className="swiss-focus inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] sm:min-h-0 text-xs font-mono uppercase tracking-wider bg-white text-black hover:bg-neutral-200 font-medium rounded-[4px] transition-colors"
           >
             <span>Contact</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -79,10 +79,10 @@ export default function HeaderAuthButtons({ session, members, teamDbId }: Header
             <button
               type="button"
               onClick={() => setIsProfileOpen(true)}
-              className="sm:hidden swiss-focus flex items-center gap-1.5 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-neutral-700 pl-2 pr-2.5 py-1.5 transition-colors min-h-[36px]"
+              className="sm:hidden swiss-focus flex items-center gap-1.5 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-neutral-700 pl-2 pr-2.5 py-1.5 rounded-[4px] transition-colors min-h-[36px]"
               aria-label="Open member profile"
             >
-              <div className="relative w-5 h-5 bg-neutral-900 border border-neutral-700 shrink-0 flex items-center justify-center overflow-hidden">
+              <div className="relative w-5 h-5 rounded-full bg-neutral-900 border border-neutral-700 shrink-0 flex items-center justify-center overflow-hidden">
                 {hasAvatar ? (
                   <Image
                     src={avatarToDisplay!}
@@ -106,8 +106,8 @@ export default function HeaderAuthButtons({ session, members, teamDbId }: Header
 
             {/* Desktop / Tablet View (sm+): Full Architectural Dossier Bar */}
             <div className="hidden sm:flex items-center gap-2 bg-neutral-950 border border-neutral-800 pl-2 pr-2.5 py-1 rounded-[4px]">
-              {/* Square Avatar thumbnail with micro-radius */}
-              <div className="relative w-5 h-5 bg-neutral-900 border border-neutral-700 shrink-0 flex items-center justify-center overflow-hidden rounded-[3px]">
+              {/* Circular Avatar thumbnail */}
+              <div className="relative w-5 h-5 rounded-full bg-neutral-900 border border-neutral-700 shrink-0 flex items-center justify-center overflow-hidden">
                 {hasAvatar ? (
                   <Image
                     src={avatarToDisplay!}

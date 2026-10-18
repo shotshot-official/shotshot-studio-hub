@@ -30,6 +30,7 @@ export const metadata: Metadata = {
 };
 
 import ToastContainer from '@/components/ToastContainer';
+import { Analytics } from '@vercel/analytics/next';
 
 export default function RootLayout({
   children,
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-neutral-800 selection:text-white`}>
         {children}
         <ToastContainer />
+        <Analytics />
       </body>
     </html>
   );

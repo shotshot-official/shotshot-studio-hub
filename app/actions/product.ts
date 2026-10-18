@@ -3,15 +3,18 @@
 
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/auth';
-import { createProductInNotion } from '@/lib/notion';
-import { ProductStatus } from '@/types/notion';
+import { createProductInNotion, updateProductInNotion } from '@/lib/notion';
 
 export async function createProductAction(data: {
   brandName: string;
-  status: ProductStatus;
+  category?: string;
+  timeline?: string;
   oneLiner: string;
+  overview?: string;
+  deliverables?: string[];
+  videoUrl?: string;
   memberIds: string[];
-  techStack: string[];
+  techStack?: string[];
   liveUrl?: string;
   internalLink?: string;
   coverImage?: string;
@@ -36,10 +39,14 @@ export async function createProductAction(data: {
 
   const notionId = await createProductInNotion({
     brandName,
-    status: data.status,
+    category: data.category?.trim() || undefined,
+    timeline: data.timeline?.trim() || undefined,
     oneLiner,
+    overview: data.overview?.trim() || undefined,
+    deliverables: data.deliverables?.filter(Boolean),
+    videoUrl: data.videoUrl?.trim() || undefined,
     memberIds,
-    techStack: data.techStack,
+    techStack: data.techStack || [],
     liveUrl: data.liveUrl?.trim() || undefined,
     internalLink: data.internalLink?.trim() || undefined,
     coverImage: data.coverImage?.trim() || undefined,
@@ -51,4 +58,55 @@ export async function createProductAction(data: {
 
   revalidatePath('/');
   return { success: true, id: notionId };
+}
+
+export async function updateProductAction(
+  productId: string,
+  data: {
+    brandName: string;
+    category?: string;
+    timeline?: string;
+    oneLiner: string;
+    overview?: string;
+    deliverables?: string[];
+    videoUrl?: string;
+    memberIds: string[];
+    techStack?: string[];
+    liveUrl?: string;
+    internalLink?: string;
+    coverImage?: string;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: 'Sign in to edit this project.' };
+  }
+
+  const brandName = data.brandName.trim();
+  if (!brandName) {
+    return { success: false, error: 'Enter a project name.' };
+  }
+
+  const ok = await updateProductInNotion(productId, {
+    brandName,
+    category: data.category?.trim() || '',
+    timeline: data.timeline?.trim() || '',
+    oneLiner: data.oneLiner.trim(),
+    overview: data.overview?.trim() || '',
+    deliverables: data.deliverables?.filter(Boolean) || [],
+    videoUrl: data.videoUrl?.trim() || '',
+    memberIds: data.memberIds,
+    techStack: data.techStack || [],
+    liveUrl: data.liveUrl?.trim() || '',
+    internalLink: data.internalLink?.trim() || '',
+    coverImage: data.coverImage?.trim() || '',
+  });
+
+  if (!ok) {
+    return { success: false, error: 'Failed to update project in Notion.' };
+  }
+
+  revalidatePath('/');
+  revalidatePath(`/products/${productId}`);
+  return { success: true };
 }

@@ -3,10 +3,18 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { X, Plus, Sparkles, CheckCircle2, AlertCircle, Rocket, Upload, RefreshCw } from 'lucide-react';
-import { TeamMember, ProductStatus } from '@/types/notion';
+import {
+  X,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  Rocket,
+  Upload,
+  RefreshCw,
+} from 'lucide-react';
+import { TeamMember, ProductItem } from '@/types/notion';
 import { AuthSession } from '@/lib/auth';
-import { createProductAction } from '@/app/actions/product';
+import { createProductAction, updateProductAction } from '@/app/actions/product';
 import { uploadImageAction } from '@/app/actions/upload';
 import { toast } from '@/lib/toast';
 
@@ -16,6 +24,7 @@ interface ProjectDrawerProps {
   members: TeamMember[];
   session: AuthSession | null;
   productsDbId?: string;
+  initialProduct?: ProductItem;
   onOpenAuth?: () => void;
 }
 
@@ -24,30 +33,43 @@ export default function ProjectDrawer({
   onClose,
   members,
   session,
-  productsDbId,
+  initialProduct,
   onOpenAuth,
 }: ProjectDrawerProps) {
-  const [brandName, setBrandName] = useState('');
-  const [status, setStatus] = useState<ProductStatus>('Active');
-  const [oneLiner, setOneLiner] = useState('');
-  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
-    session ? [session.memberId] : []
+  const isEditMode = Boolean(initialProduct);
+
+  const [brandName, setBrandName] = useState(initialProduct?.brandName || '');
+  const [category, setCategory] = useState(initialProduct?.category || 'Original Series');
+  const [oneLiner, setOneLiner] = useState(initialProduct?.oneLiner || '');
+  const [overview, setOverview] = useState(initialProduct?.overview || '');
+  const [deliverablesText, setDeliverablesText] = useState(
+    initialProduct?.deliverables ? initialProduct.deliverables.join('\n') : ''
   );
-  const [techStack, setTechStack] = useState<string[]>([
-    'Next.js 15',
-    'Tailwind CSS v4',
-    'TypeScript',
-  ]);
-  const [newTag, setNewTag] = useState('');
-  const [liveUrl, setLiveUrl] = useState('');
-  const [internalLink, setInternalLink] = useState('');
-  const [coverImage, setCoverImage] = useState('');
+  const [videoUrl, setVideoUrl] = useState(initialProduct?.videoUrl || '');
+  const [liveUrl, setLiveUrl] = useState(initialProduct?.liveUrl || '');
+  const [internalLink, setInternalLink] = useState(initialProduct?.internalLink || '');
+  const [coverImage, setCoverImage] = useState(initialProduct?.coverImage || '');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!initialProduct) return;
+    setBrandName(initialProduct.brandName);
+    setCategory(initialProduct.category || 'Original Series');
+    setOneLiner(initialProduct.oneLiner);
+    setOverview(initialProduct.overview || '');
+    setDeliverablesText(
+      initialProduct.deliverables ? initialProduct.deliverables.join('\n') : ''
+    );
+    setVideoUrl(initialProduct.videoUrl || '');
+    setLiveUrl(initialProduct.liveUrl || '');
+    setInternalLink(initialProduct.internalLink || '');
+    setCoverImage(initialProduct.coverImage || '');
+  }, [initialProduct]);
 
   async function handleCoverFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -76,26 +98,6 @@ export default function ProjectDrawer({
 
   if (!isOpen) return null;
 
-  function handleToggleMember(id: string) {
-    if (selectedMemberIds.includes(id)) {
-      setSelectedMemberIds(selectedMemberIds.filter((mId) => mId !== id));
-    } else {
-      setSelectedMemberIds([...selectedMemberIds, id]);
-    }
-  }
-
-  function handleAddTag() {
-    const trimmed = newTag.trim();
-    if (trimmed && !techStack.includes(trimmed)) {
-      setTechStack([...techStack, trimmed]);
-      setNewTag('');
-    }
-  }
-
-  function handleRemoveTag(tag: string) {
-    setTechStack(techStack.filter((t) => t !== tag));
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!session) {
@@ -108,31 +110,51 @@ export default function ProjectDrawer({
     setError(null);
     setSuccess(false);
 
-    const res = await createProductAction({
+    const deliverables = deliverablesText
+      .split(/\n+/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const payload = {
       brandName,
-      status,
+      category,
+      timeline: initialProduct?.timeline || undefined,
       oneLiner,
-      memberIds: selectedMemberIds,
-      techStack,
+      overview,
+      deliverables,
+      videoUrl,
+      memberIds: [],
+      techStack: initialProduct?.techStack || [],
       liveUrl,
       internalLink,
       coverImage,
-    });
+    };
+
+    const res =
+      isEditMode && initialProduct
+        ? await updateProductAction(initialProduct.id, payload)
+        : await createProductAction(payload);
 
     setLoading(false);
     if (res.success) {
       setSuccess(true);
-      toast.success('Project added to archive.');
+      toast.success(
+        isEditMode ? 'Project specifications updated.' : 'Project added to archive.'
+      );
       setTimeout(() => {
         setSuccess(false);
         onClose();
-        // Reset form
-        setBrandName('');
-        setOneLiner('');
-        setLiveUrl('');
-        setInternalLink('');
-        setCoverImage('');
-      }, 1200);
+        if (!isEditMode) {
+          setBrandName('');
+          setOneLiner('');
+          setOverview('');
+          setDeliverablesText('');
+          setVideoUrl('');
+          setLiveUrl('');
+          setInternalLink('');
+          setCoverImage('');
+        }
+      }, 900);
     } else {
       setError(res.error || 'Could not save project. Please try again.');
       toast.error(res.error || 'Could not save project.');
@@ -154,20 +176,20 @@ export default function ProjectDrawer({
       />
 
       {/* Slide-over Drawer */}
-      <div className="relative w-full max-w-lg bg-[var(--color-surface)] border-l border-neutral-800 p-5 sm:p-6 md:p-8 flex flex-col justify-between h-full overflow-y-auto shadow-2xl z-10">
+      <div className="relative w-full max-w-xl bg-[var(--color-surface)] border-l border-neutral-800 p-5 sm:p-6 md:p-8 flex flex-col justify-between h-full overflow-y-auto shadow-2xl z-10">
         <div>
           {/* Header */}
           <div className="flex items-center justify-between pb-6 border-b border-neutral-800">
             <div>
               <span className="text-xs uppercase tracking-widest text-neutral-400 font-mono flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                SELECTED WORKS
+                {isEditMode ? 'PROJECT SPECIFICATIONS' : 'SELECTED WORKS'}
               </span>
               <h2
                 id="project-drawer-title"
                 className="text-2xl font-bold text-white tracking-tight mt-0.5 uppercase"
               >
-                Add Project
+                {isEditMode ? 'Edit Project' : 'Add Project'}
               </h2>
             </div>
             <button
@@ -187,7 +209,7 @@ export default function ProjectDrawer({
               className="mt-4 p-3 bg-emerald-950/40 border border-emerald-800/60 text-emerald-300 text-xs flex items-center gap-2 font-mono"
             >
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Project added.</span>
+              <span>{isEditMode ? 'Project updated in Notion.' : 'Project added.'}</span>
             </div>
           )}
           {error && (
@@ -202,45 +224,44 @@ export default function ProjectDrawer({
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5 mt-6">
-            {/* Brand Name & Status */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="venture-brand-name"
-                  className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
-                >
-                  Project Name
-                </label>
-                <input
-                  id="venture-brand-name"
-                  type="text"
-                  required
-                  value={brandName}
-                  onChange={(e) => setBrandName(e.target.value)}
-                  placeholder="e.g. OrbitPulse"
-                  className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-400 swiss-focus"
-                />
-              </div>
+            {/* Brand Name */}
+            <div>
+              <label
+                htmlFor="venture-brand-name"
+                className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
+              >
+                Project Name
+              </label>
+              <input
+                id="venture-brand-name"
+                type="text"
+                required
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                placeholder="e.g. Hanseong Spots"
+                className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-400 swiss-focus"
+              />
+            </div>
 
-              <div>
-                <label
-                  htmlFor="venture-status"
-                  className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
-                >
-                  Status
-                </label>
-                <select
-                  id="venture-status"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as ProductStatus)}
-                  className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-sm text-white swiss-focus"
-                >
-                  <option value="Active">Active</option>
-                  <option value="In Development">In Development</option>
-                  <option value="Concept">Concept</option>
-                  <option value="Archived">Archived</option>
-                </select>
-              </div>
+            {/* Category */}
+            <div>
+              <label
+                htmlFor="venture-category"
+                className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
+              >
+                Category
+              </label>
+              <select
+                id="venture-category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-sm text-white swiss-focus"
+              >
+                <option value="Original Series">Original Series</option>
+                <option value="Web & Media">Web &amp; Media</option>
+                <option value="Travel Format">Travel Format</option>
+                <option value="Brand Campaign">Brand Campaign</option>
+              </select>
             </div>
 
             {/* One-Liner Description */}
@@ -249,7 +270,7 @@ export default function ProjectDrawer({
                 htmlFor="venture-one-liner"
                 className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
               >
-                Short Description
+                One-Line Pitch (Card Summary)
               </label>
               <textarea
                 id="venture-one-liner"
@@ -258,108 +279,48 @@ export default function ProjectDrawer({
                 maxLength={200}
                 value={oneLiner}
                 onChange={(e) => setOneLiner(e.target.value)}
-                placeholder="Describe what this venture does in one or two sentences."
+                placeholder="Describe what this project does in one or two sentences."
                 className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs text-white placeholder-neutral-400 swiss-focus resize-none leading-relaxed"
               />
             </div>
 
-            {/* Contributing Team Members */}
-            <div>
-              <span className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider">
-                Team Members
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                {members.map((member) => {
-                  const isChecked = selectedMemberIds.includes(member.id);
-                  return (
-                    <button
-                      key={member.id}
-                      type="button"
-                      aria-pressed={isChecked}
-                      onClick={() => handleToggleMember(member.id)}
-                      className={`flex items-center gap-2.5 p-2 border text-left transition-colors text-xs swiss-focus ${
-                        isChecked
-                          ? 'bg-neutral-800/90 border-white text-white'
-                          : 'bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-neutral-600'
-                      }`}
-                    >
-                      <div className="relative w-6 h-6 bg-neutral-900 border border-neutral-700 overflow-hidden shrink-0 flex items-center justify-center text-xs font-mono">
-                        {member.avatarUrl ? (
-                          <Image
-                            src={member.avatarUrl}
-                            alt={member.name}
-                            fill
-                            className="object-cover"
-                            sizes="24px"
-                          />
-                        ) : (
-                          member.name.slice(0, 1)
-                        )}
-                      </div>
-                      <div className="truncate flex-1">
-                        <div className="font-medium truncate">{member.name}</div>
-                        <div className="text-xs text-neutral-400 font-mono truncate">{member.role}</div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Tech Stack Pills */}
+            {/* Detailed Project Overview (V2 Schema) */}
             <div>
               <label
-                htmlFor="venture-new-tag"
+                htmlFor="venture-overview"
                 className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
               >
-                Tech Stack
+                Project Overview (Detail Page)
               </label>
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {techStack.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1.5 text-xs font-mono uppercase px-2.5 py-1 bg-neutral-950 text-neutral-200 border border-neutral-700"
-                  >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className="swiss-focus text-neutral-400 hover:text-red-400 transition-colors"
-                      title={`Remove ${tag}`}
-                      aria-label={`Remove ${tag}`}
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input
-                  id="venture-new-tag"
-                  type="text"
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddTag();
-                    }
-                  }}
-                  placeholder="Add technology (e.g. Next.js, TypeScript)"
-                  className="flex-1 bg-neutral-950 border border-neutral-800 px-3 py-1.5 text-xs text-white placeholder-neutral-400 swiss-focus"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddTag}
-                  className="swiss-focus px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-white text-xs font-mono transition-colors"
-                  aria-label="Add technology"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
+              <textarea
+                id="venture-overview"
+                rows={3}
+                value={overview}
+                onChange={(e) => setOverview(e.target.value)}
+                placeholder="Expanded background, editorial thesis, or architecture summary shown on the detail page."
+                className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs text-white placeholder-neutral-400 swiss-focus leading-relaxed"
+              />
             </div>
 
-            {/* Cover Image URL & Direct Notion Upload Redirect */}
+            {/* Key Deliverables (V2 Schema) */}
+            <div>
+              <label
+                htmlFor="venture-deliverables"
+                className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
+              >
+                Key Deliverables (One per line)
+              </label>
+              <textarea
+                id="venture-deliverables"
+                rows={3}
+                value={deliverablesText}
+                onChange={(e) => setDeliverablesText(e.target.value)}
+                placeholder={'10-15m Cinematic Episode Series\nWalking Route Blueprint\nBilingual Web Index'}
+                className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs font-mono text-white placeholder-neutral-400 swiss-focus leading-relaxed"
+              />
+            </div>
+
+            {/* Cover Image URL & Upload */}
             <div>
               <label
                 htmlFor="venture-cover-image"
@@ -414,26 +375,23 @@ export default function ProjectDrawer({
                   />
                 </div>
               )}
-              <p className="text-xs text-neutral-400 font-mono mt-1">
-                JPG, PNG, WebP (Max 10MB)
-              </p>
             </div>
 
-            {/* URLs */}
+            {/* URLs & Video Embed */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label
                   htmlFor="venture-live-url"
                   className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
                 >
-                  Live URL (Optional)
+                  Live / Channel URL
                 </label>
                 <input
                   id="venture-live-url"
                   type="url"
                   value={liveUrl}
                   onChange={(e) => setLiveUrl(e.target.value)}
-                  placeholder="https://myservice.dev"
+                  placeholder="https://youtube.com/... or https://..."
                   className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs text-white placeholder-neutral-400 swiss-focus"
                 />
               </div>
@@ -443,17 +401,34 @@ export default function ProjectDrawer({
                   htmlFor="venture-repo-url"
                   className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
                 >
-                  Source or Docs (Optional)
+                  Source or Docs URL
                 </label>
                 <input
                   id="venture-repo-url"
                   type="url"
                   value={internalLink}
                   onChange={(e) => setInternalLink(e.target.value)}
-                  placeholder="https://github.com/..."
+                  placeholder="https://notion.so/... or https://github.com/..."
                   className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs text-white placeholder-neutral-400 swiss-focus"
                 />
               </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="venture-video-url"
+                className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
+              >
+                Featured Video / YouTube Embed URL (Optional)
+              </label>
+              <input
+                id="venture-video-url"
+                type="url"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=... (Plays in Detail Page)"
+                className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs text-white placeholder-neutral-400 swiss-focus font-mono"
+              />
             </div>
 
             {/* Submit Button */}
@@ -466,9 +441,11 @@ export default function ProjectDrawer({
                 <Rocket className="w-4 h-4" />
                 <span>
                   {!session
-                    ? 'Sign In to Add Project'
+                    ? 'Sign In to Save Project'
                     : loading
                     ? 'Saving...'
+                    : isEditMode
+                    ? 'Save Project Changes'
                     : 'Add Project'}
                 </span>
               </button>

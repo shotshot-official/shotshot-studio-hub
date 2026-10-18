@@ -47,7 +47,10 @@ typography:
     lineHeight: 1.4
     letterSpacing: "0.1em"
 rounded:
-  none: "0px"
+  card: "6px"
+  control: "4px"
+  chip: "4px"
+  full: "9999px"
 spacing:
   xs: "4px"
   sm: "8px"
@@ -60,7 +63,7 @@ components:
     backgroundColor: "{colors.stark-chalk}"
     textColor: "{colors.architectural-obsidian}"
     typography: "{typography.label}"
-    rounded: "{rounded.none}"
+    rounded: "{rounded.control}"
     padding: "10px 16px"
   button-primary-hover:
     backgroundColor: "{colors.chalk-secondary}"
@@ -69,7 +72,7 @@ components:
     backgroundColor: "{colors.architectural-obsidian}"
     textColor: "{colors.chalk-secondary}"
     typography: "{typography.label}"
-    rounded: "{rounded.none}"
+    rounded: "{rounded.control}"
     padding: "6px 12px"
   button-secondary-hover:
     backgroundColor: "{colors.slate-subsurface}"
@@ -77,7 +80,7 @@ components:
   card-dossier:
     backgroundColor: "{colors.graphite-plate}"
     textColor: "{colors.stark-chalk}"
-    rounded: "{rounded.none}"
+    rounded: "{rounded.card}"
     padding: "24px"
   card-dossier-hover:
     backgroundColor: "{colors.graphite-hover}"
@@ -85,14 +88,16 @@ components:
     backgroundColor: "{colors.architectural-obsidian}"
     textColor: "{colors.chalk-secondary}"
     typography: "{typography.label}"
-    rounded: "{rounded.none}"
+    rounded: "{rounded.chip}"
     padding: "2px 8px"
   input-field:
     backgroundColor: "{colors.architectural-obsidian}"
     textColor: "{colors.stark-chalk}"
     typography: "{typography.body}"
-    rounded: "{rounded.none}"
+    rounded: "{rounded.control}"
     padding: "8px 12px"
+  avatar-profile:
+    rounded: "{rounded.full}"
 ---
 
 # Design System: SHOTSHOT Studio Hub
@@ -189,32 +194,35 @@ SHOTSHOT Studio Hub is a **planar architectural system**. At rest and on hover, 
 
 ## Shapes
 
-Every component in the system obeys a strict **0px rectilinear geometry (`border-radius: 0px`)**. Cards, square principal avatars (`56px × 56px`), venture cover frames (`height: 208px`), skill chips, status badges, buttons, and form inputs all terminate in sharp 90-degree corners. Dividers are exposed 1px horizontal and vertical hairlines (`border-neutral-800`) that segment internal card regions (header, body, specification footer).
+The system balances disciplined Swiss architectural structure with tactile micro-radii and humanistic circular accents:
+- **Cards & Containers:** `6px` micro-radius (`--radius-card`), maintaining tight planar hairlines while avoiding harsh, sharp brutalism.
+- **Controls, Badges & Chips:** `4px` micro-radius (`--radius-control` / `--radius-chip`), providing a refined tactile feel for buttons, inputs, filter tabs, and skill chips.
+- **Human Profile Avatars & Contributor Chips:** `9999px` circular geometry (`rounded-full`), reserved specifically for principal photos and contributor pills. This breaks the monotony of pure rectangles and creates an organic, humanistic counterpoint to the precision bento layout.
 
 ## Components
 
 ### Buttons
-Rectilinear, high-contrast typographic triggers set in uppercase `Geist Mono` (`12px`, `letter-spacing: 0.08em`).
-- **Shape:** Sharp 90-degree corners (`0px` radius).
+Tactile, high-contrast typographic triggers set in uppercase `Geist Mono` (`12px`, `letter-spacing: 0.08em`).
+- **Shape:** `4px` micro-radius (`rounded-[4px]`).
 - **Primary (`Inquire`, `Start a Project`, `VISIT`, Drawer Submit):** Solid `Stark Chalk` (`#ffffff`) background with `Architectural Obsidian` (`#08080a`) text and `10px 16px` (or `14px 24px` hero) padding.
 - **Hover / Focus:** Primary buttons shift to `#e5e5e5` on hover; secondary buttons (`Portal`, `Register Venture`, `SOURCE`) use `#08080a` fill with `1px solid #404040` border that brightens to `1px solid #ffffff` on hover. All buttons carry `.swiss-focus` (`2px solid #ffffff` outline with `2px` offset on `:focus-visible`).
 
-### Chips (`SkillMatrix` & `StatusBadge`)
+### Chips (`SkillMatrix`)
 Compact specification tags that read like blueprint metadata labels.
-- **Style:** `0px` radius, `2px 8px` padding, `11px` uppercase `Geist Mono`, `Architectural Obsidian` (`#08080a`) background with `1px solid #262626` border and `Chalk Secondary` (`#d4d4d8`) text.
-- **State:** `SkillMatrix` chips brighten their border to `#525252` and text to `#ffffff` on hover. `StatusBadge` prepends a `6px × 6px` square color indicator (`#10b981`, `#38bdf8`, `#f59e0b`, or `#a3a3a3`) and tints its 1px border to match the semantic status.
+- **Style:** `4px` micro-radius (`rounded-[4px]`), `2px 8px` padding, `11px` uppercase `Geist Mono`, `Architectural Obsidian` (`#08080a`) background with `1px solid #262626` border and `Chalk Secondary` (`#d4d4d8`) text.
+- **State:** `SkillMatrix` chips brighten their border to `#525252` and text to `#ffffff` on hover. Precision `+N` indicator pills share the exact same 4px micro-radius geometry and hairline border style.
 
 ### Cards / Containers (`MemberCard` & `BrandCard`)
 Modular planar bento tiles governed by `.swiss-border`.
-- **Corner Style:** `0px` rectilinear corners.
+- **Corner Style:** `6px` micro-radius (`var(--radius-card)`).
 - **Background:** `Graphite Plate` (`#141418`) at rest, transitioning to `Graphite Hover` (`#1b1b21`) over `200ms cubic-bezier(0.16, 1, 0.3, 1)`.
 - **Shadow Strategy:** None (planar elevation only).
 - **Border:** `1px solid rgba(255, 255, 255, 0.11)` at rest; `1px solid rgba(255, 255, 255, 0.45)` on hover.
 - **Internal Padding:** `24px` (`p-6`), with internal sections separated by `1px solid rgba(255, 255, 255, 0.11)` horizontal dividers.
 
 ### Inputs / Fields
-Recessed rectilinear data-entry fields inside slide-over drawers.
-- **Style:** `1px solid #262626` border on `Architectural Obsidian` (`#08080a`) background, `0px` radius, `8px 12px` padding, `14px` (`text-sm`) or `12px` (`text-xs font-mono`) `#ffffff` text with `Ash Muted` (`#a3a3a3`) placeholders.
+Recessed tactile data-entry fields inside slide-over drawers.
+- **Style:** `1px solid #262626` border on `Architectural Obsidian` (`#08080a`) background, `4px` radius (`rounded-[4px]`), `8px 12px` padding, `14px` (`text-sm`) or `12px` (`text-xs font-mono`) `#ffffff` text with `Ash Muted` (`#a3a3a3`) placeholders.
 - **Focus:** `.swiss-focus` (`2px solid #ffffff` outline, `2px` offset).
 - **Error / Disabled:** Validation errors render in a `1px solid rgba(153, 27, 27, 0.6)` banner with `#fca5a5` monospace copy; disabled controls drop to `opacity: 0.4–0.5`.
 
@@ -225,14 +233,15 @@ Single-screen masthead specification bar (`app/page.tsx` + `HeaderAuthButtons.ts
 ## Do's and Don'ts
 
 ### Do:
-- **Do** enforce `0px` corners across all cards, avatars, buttons, inputs, badges, and drawers to preserve the rectilinear Swiss architectural grid.
+- **Do** enforce disciplined `6px` card corners and `4px` control corners across the architectural bento grid.
+- **Do** use `rounded-full` circular frames for human profile photos, contributor chips, and telemetry status indicator dots to balance geometry with human warmth.
 - **Do** apply `.swiss-focus` (`2px solid #ffffff` outline with `2px` offset) to every interactive link, button, input, and toggle (`WCAG 2.2 SC 2.4.7`).
 - **Do** ensure asymmetric bento rows in `BentoGridLayout` always sum to 12 columns on desktop (`8+4`, `6+6`, or `12` for a single/trailing odd venture).
 - **Do** pair every image container with a deterministic typographic fallback (2-letter uppercase monogram for principals, 3-letter `VENTURE // ARCHIVE` poster block for products) to guard against Notion S3 URL expiry.
 - **Do** respect `prefers-reduced-motion` via both `useReducedMotion()` in Framer Motion and the global `@media (prefers-reduced-motion: reduce)` rule in `app/globals.css`.
 
 ### Don't:
-- **Don't** introduce `rounded-lg`, `rounded-xl`, or `rounded-full` pills or circular avatars anywhere in the interface.
+- **Don't** use generic bubble pill buttons or aggressive 16px+ rounded corners on cards.
 - **Don't** use `placeholder-neutral-600` or `text-neutral-500` for readable copy or placeholders; maintain at least `Ash Muted` (`#a3a3a3`) for ≥4.5:1 contrast.
 - **Don't** create `tailwind.config.js` or `tailwind.config.ts`; all design tokens belong in the `@theme` block of `app/globals.css` (Tailwind CSS v4 CSS-first).
 - **Don't** add decorative drop shadows, colored border-left accents, or glassmorphic background blurs to bento grid cards.
