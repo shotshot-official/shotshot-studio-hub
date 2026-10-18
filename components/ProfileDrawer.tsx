@@ -3,7 +3,23 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { X, Plus, Trash2, Save, LogOut, CheckCircle2, AlertCircle, Upload, Camera, RefreshCw } from 'lucide-react';
+import {
+  X,
+  Plus,
+  Trash2,
+  Save,
+  LogOut,
+  CheckCircle2,
+  AlertCircle,
+  Upload,
+  Camera,
+  RefreshCw,
+  KeyRound,
+  Eye,
+  EyeOff,
+  Check,
+  ShieldCheck,
+} from 'lucide-react';
 import { AuthSession } from '@/lib/auth';
 import { updateProfileAction, logoutAction } from '@/app/actions/auth';
 import { uploadAvatarAction } from '@/app/actions/upload';
@@ -41,6 +57,10 @@ export default function ProfileDrawer({
   const [personalLinks, setPersonalLinks] = useState<string[]>(initialLinks);
   const [newLink, setNewLink] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -59,10 +79,20 @@ export default function ProfileDrawer({
       setSkills(initialSkills);
       setPersonalLinks(initialLinks);
       setNewPassword('');
+      setConfirmPassword('');
+      setIsPasswordOpen(false);
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
       setError(null);
       setSuccess(false);
     }
   }, [isOpen, initialName, initialRole, initialAvatar, initialSkills, initialLinks]);
+
+  // Compute password validity
+  const isPasswordChanged = newPassword.trim().length > 0;
+  const isPasswordMatch = isPasswordChanged && newPassword === confirmPassword;
+  const isPasswordLengthOk = newPassword.trim().length >= 4;
+  const isPasswordValid = !isPasswordChanged || (isPasswordLengthOk && isPasswordMatch);
 
   // Compute if any form field has been modified
   const isNameChanged = name.trim() !== initialName.trim();
@@ -74,7 +104,6 @@ export default function ProfileDrawer({
   const isLinksChanged =
     personalLinks.length !== initialLinks.length ||
     personalLinks.some((l, idx) => l !== initialLinks[idx]);
-  const isPasswordChanged = newPassword.trim().length > 0;
 
   const isDirty =
     isNameChanged ||
@@ -168,6 +197,17 @@ export default function ProfileDrawer({
       return;
     }
 
+    if (isPasswordChanged) {
+      if (!isPasswordLengthOk) {
+        setError('새 비밀번호는 최소 4자 이상이어야 합니다.');
+        return;
+      }
+      if (!isPasswordMatch) {
+        setError('새 비밀번호와 확인 입력이 일치하지 않습니다.');
+        return;
+      }
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -184,6 +224,9 @@ export default function ProfileDrawer({
     setLoading(false);
     if (res.success) {
       setSuccess(true);
+      setIsPasswordOpen(false);
+      setNewPassword('');
+      setConfirmPassword('');
       toast.success('Profile changes saved.');
       setTimeout(() => {
         setSuccess(false);
@@ -517,34 +560,184 @@ export default function ProfileDrawer({
               </div>
             </div>
 
-            {/* Password Change (Optional) */}
-            <div>
-              <label
-                htmlFor="profile-new-password"
-                className="block text-xs font-mono text-neutral-300 mb-1.5 uppercase tracking-wider"
-              >
-                Change Password (Optional)
-              </label>
-              <input
-                id="profile-new-password"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Leave blank to keep current password"
-                className="w-full bg-neutral-950 border border-neutral-800 px-3 py-2 text-xs text-white placeholder-neutral-400 swiss-focus rounded-[4px]"
-              />
-              <p className="mt-1 text-xs text-neutral-400 font-mono">
-                * Minimum 4 characters.
-              </p>
+            {/* Security & Password Credentials Card */}
+            <div className="border border-neutral-800 bg-neutral-950/70 rounded-[6px] overflow-hidden transition-all">
+              {/* Card Header & Toggle Trigger */}
+              <div className="p-3.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-[4px] bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0 text-neutral-300">
+                    <KeyRound className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono uppercase tracking-wider text-neutral-200 font-medium">
+                        Password &amp; Security
+                      </span>
+                      {isPasswordChanged && isPasswordValid && (
+                        <span className="px-1.5 py-0.5 text-[10px] font-mono uppercase bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 rounded-[3px]">
+                          READY
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs font-mono text-neutral-400 truncate">
+                      SHA-256 encrypted authentication
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isPasswordOpen) {
+                      setNewPassword('');
+                      setConfirmPassword('');
+                    }
+                    setIsPasswordOpen(!isPasswordOpen);
+                  }}
+                  className="swiss-focus px-2.5 py-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 hover:border-neutral-500 text-xs font-mono uppercase tracking-wider text-neutral-200 transition-colors rounded-[4px] shrink-0"
+                >
+                  {isPasswordOpen ? 'Cancel' : 'Change Password'}
+                </button>
+              </div>
+
+              {/* Collapsible Password Edit Drawer Section */}
+              {isPasswordOpen && (
+                <div className="px-3.5 pb-4 pt-3.5 border-t border-neutral-800/80 space-y-3.5 bg-neutral-950/40">
+                  {/* New Password Field */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label
+                        htmlFor="profile-new-password"
+                        className="block text-xs font-mono text-neutral-300 uppercase tracking-wider"
+                      >
+                        New Password
+                      </label>
+                      <span className="text-xs font-mono text-neutral-400">
+                        Min. 4 characters
+                      </span>
+                    </div>
+                    <div className="relative">
+                      <input
+                        id="profile-new-password"
+                        type={showNewPassword ? 'text' : 'password'}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Enter new secure password"
+                        autoComplete="new-password"
+                        className="w-full bg-neutral-900 border border-neutral-800 pl-3 pr-9 py-2 text-xs text-white placeholder-neutral-500 swiss-focus font-mono rounded-[4px]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="swiss-focus absolute right-2 top-2 p-1 text-neutral-400 hover:text-white transition-colors"
+                        title={showNewPassword ? 'Hide password' : 'Show password'}
+                        aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showNewPassword ? (
+                          <EyeOff className="w-3.5 h-3.5" />
+                        ) : (
+                          <Eye className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Confirm Password Field */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label
+                        htmlFor="profile-confirm-password"
+                        className="block text-xs font-mono text-neutral-300 uppercase tracking-wider"
+                      >
+                        Confirm Password
+                      </label>
+                      {newPassword.length > 0 && confirmPassword.length > 0 && (
+                        <span
+                          className={`text-xs font-mono flex items-center gap-1 ${
+                            isPasswordMatch ? 'text-emerald-400' : 'text-amber-400'
+                          }`}
+                        >
+                          {isPasswordMatch ? (
+                            <>
+                              <Check className="w-3 h-3" />
+                              <span>Matched</span>
+                            </>
+                          ) : (
+                            <>
+                              <AlertCircle className="w-3 h-3" />
+                              <span>Mismatch</span>
+                            </>
+                          )}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <input
+                        id="profile-confirm-password"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Re-enter new password"
+                        autoComplete="new-password"
+                        className="w-full bg-neutral-900 border border-neutral-800 pl-3 pr-9 py-2 text-xs text-white placeholder-neutral-500 swiss-focus font-mono rounded-[4px]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="swiss-focus absolute right-2 top-2 p-1 text-neutral-400 hover:text-white transition-colors"
+                        title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-3.5 h-3.5" />
+                        ) : (
+                          <Eye className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Real-time Requirement Checklist */}
+                  {isPasswordChanged && (
+                    <div className="p-2.5 bg-neutral-900/80 border border-neutral-800 text-xs font-mono space-y-1 text-neutral-400 rounded-[4px]">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isPasswordLengthOk ? 'bg-emerald-400' : 'bg-neutral-600'
+                          }`}
+                        />
+                        <span className={isPasswordLengthOk ? 'text-neutral-200' : ''}>
+                          At least 4 characters ({newPassword.length}/4)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isPasswordMatch ? 'bg-emerald-400' : 'bg-neutral-600'
+                          }`}
+                        />
+                        <span className={isPasswordMatch ? 'text-neutral-200' : ''}>
+                          Passwords must match exactly
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-1.5 text-xs text-neutral-400 font-mono pt-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                    <span>Encrypted with SHA-256 before storage in Notion.</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Actions */}
             <div className="pt-4 border-t border-neutral-800 flex flex-col gap-2">
               <button
                 type="submit"
-                disabled={!isDirty || loading || uploading}
-                className={`w-full font-mono uppercase tracking-wider font-bold py-2.5 px-4 text-xs transition-colors flex items-center justify-center gap-2 swiss-focus ${
-                  isDirty && !loading && !uploading
+                disabled={!isDirty || loading || uploading || (isPasswordChanged && !isPasswordValid)}
+                className={`w-full font-mono uppercase tracking-wider font-bold py-2.5 px-4 text-xs transition-colors flex items-center justify-center gap-2 swiss-focus rounded-[4px] ${
+                  isDirty && !loading && !uploading && (!isPasswordChanged || isPasswordValid)
                     ? 'bg-white text-black hover:bg-neutral-200 cursor-pointer'
                     : 'bg-neutral-900 border border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
                 }`}
@@ -555,14 +748,21 @@ export default function ProfileDrawer({
                     ? 'Saving...'
                     : uploading
                     ? 'Uploading Photo...'
+                    : isPasswordChanged && !isPasswordValid
+                    ? 'Check Password Fields'
                     : !isDirty
                     ? 'No Changes to Save'
                     : 'Save Changes'}
                 </span>
               </button>
-              {isDirty && (
+              {isDirty && !isPasswordChanged && (
                 <p className="text-xs text-neutral-400 font-mono text-center">
                   * You have unsaved changes.
+                </p>
+              )}
+              {isPasswordChanged && !isPasswordValid && (
+                <p className="text-xs text-amber-400 font-mono text-center">
+                  * Verify new password meets minimum 4 characters and confirmation matches.
                 </p>
               )}
             </div>
